@@ -1,5 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -7,10 +6,48 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { Button, FormHelperText } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import * as Yup from "yup";
+import logo from "../assets/logo.jpg";
 
-import { useSignUpUserMutation } from "../features/auth/authApi";
+import { useSignUpUserMutation } from "../api/api";
+
+const inputFieldArray = [
+  { id: "0", type: "text", label: "First Name", name: "firstname" },
+  { id: "1", type: "text", label: "Last Name", name: "lastname" },
+  { id: "2", type: "text", label: "Username", name: "username" },
+  { id: "3", type: "email", label: "Email", name: "email" },
+  { id: "4", type: "password", label: "Password", name: "password" },
+  {
+    id: "5",
+    type: "password",
+    label: "Confirm Password",
+    name: "confirmpassword",
+  },
+];
+
+const validationSchema = Yup.object({
+  firstname: Yup.string()
+    .min(4, "First name must be at least 4 characters")
+    .required("Enter first name"),
+  lastname: Yup.string()
+    .min(4, "Last name must be at least 4 characters")
+    .required("Enter last name"),
+  username: Yup.string()
+    .min(6, "Username must be at least 6 characters")
+    .required("Enter username"),
+  email: Yup.string().email("Enter valid email").required("Enter email"),
+  password: Yup.string()
+    .min(8, "Password should be more than 8 characters")
+    .required("Enter password"),
+  confirmpassword: Yup.string()
+    .required("Enter Confirm password")
+    .oneOf(
+      [Yup.ref("password"), null],
+      "Password and Confirm Password doesn't match",
+    ),
+});
 
 export default function SignUp() {
   const [inputFields, setInputFields] = useState({
@@ -19,145 +56,67 @@ export default function SignUp() {
     username: "",
     email: "",
     password: "",
+    confirmpassword: "",
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
-
   const [signUpUser] = useSignUpUserMutation();
+
+  useEffect(() => {
+    if (isSubmitted) {
+      validationSchema
+        .validate(inputFields, { abortEarly: false })
+        .then(() => setErrors({}))
+        .catch((err) => {
+          const newErrors = {};
+          err.inner.forEach((error) => {
+            newErrors[error.path] = error.message;
+          });
+          setErrors(newErrors);
+        });
+    }
+  }, [inputFields, isSubmitted]);
 
   const handleChange = (e) => {
     setInputFields((prevFields) => ({
       ...prevFields,
       [e.target.name]: e.target.value,
     }));
-    setErrors((prevErrors) => {
-      const fieldErrors = validateValues({
-        ...inputFields,
-        [e.target.name]: e.target.value,
-      });
-      return {
-        ...prevErrors,
-        [e.target.name]: fieldErrors[e.target.name] || "",
-      };
-    });
   };
 
-  const validateValues = (inputValues) => {
-    const errors = {};
-    if (!inputValues.firstname) {
-      errors.firstname = "enter first name";
-    } else if (inputValues.firstname.trim().length < 4) {
-      errors.firstname = "first name must be at least 4 characters long.";
-    }
-    if (!inputValues.lastname) {
-      errors.lastname = "enter last name";
-    } else if (inputValues.lastname.trim().length < 4) {
-      errors.lastname = "last name must be at least 4 characters long.";
-    }
-
-    if (!inputValues.username) {
-      errors.username = "enter username";
-    } else if (inputValues.username.trim().length < 6) {
-      errors.username = "username must be at least 6  characters long.";
-    }
-
-    if (!inputValues.email) {
-      errors.email = "enter email";
-    } else if (
-      !/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(
-        inputValues.email,
-      )
-    ) {
-      errors.email = "enter valid email";
-    }
-
-    if (!inputValues.password) {
-      errors.password = "enter password";
-    } else if (inputValues.password.trim().length < 8) {
-      errors.password = "password should be more than 8 characters";
-    }
-    console.log("errors in validation", errors);
-
-    return errors;
-  };
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitted(true);
+
     const { firstname, lastname, username, email, password } = inputFields;
-    const errors1 = validateValues(inputFields);
-    setErrors(errors1);
-    console.log("errors", errors);
 
-    if (Object.keys(errors1).length) {
-      return;
+    try {
+      const newUser = {
+        firstname,
+        lastname,
+        username,
+        email,
+        password,
+      };
+      await validationSchema.validate(inputFields, { abortEarly: false });
+      console.log(newUser);
+
+      const response = await signUpUser(newUser);
+      console.log(response);
+
+      if (response.error) {
+        toast.error(response.error.data.message);
+      } else {
+        toast.success("Sign up successfully!", {
+          autoClose: 500,
+          onClose: () => navigate("/signin"),
+        });
+      }
+    } catch (err) {
+      console.log("Validation failed", err);
     }
-
-    // const existingUser = storedUserData.find((user) => user.email === email);
-    // if (existingUser) {
-    //   toast.error("Email already exists.");
-    //   return;
-    // }
-
-    const newUser = {
-      firstname,
-      lastname,
-      username,
-      email,
-      password,
-    };
-    // console.log(newUser);
-    const response = await signUpUser(newUser);
-
-    console.log(response);
-
-    // const updatedUserData = [...storedUserData, newUser];
-
-    toast.success("Sign up successfully!", {
-      autoClose: 500,
-      onClose: () => navigate("/signin"),
-    });
   };
-  const inputFieldArray = [
-    {
-      id: "0",
-      type: "text",
-      helperText: errors.firstname,
-      label: "First Name",
-      name: "firstname",
-      value: inputFields.firstname,
-    },
-    {
-      id: "1",
-      type: "text",
-      helperText: errors.lastname,
-      label: "Last Name",
-      name: "lastname",
-      value: inputFields.lastname,
-    },
-    {
-      id: "2",
-      type: "text",
-      helperText: errors.username,
-      label: "Username",
-      name: "username",
-      value: inputFields.username,
-    },
-    {
-      id: "3",
-      type: "email",
-      helperText: errors.email,
-      name: "email",
-      label: "Email",
-      value: inputFields.email,
-    },
-    {
-      id: "4",
-      type: "password",
-      helperText: errors.password,
-      name: "password",
-      label: "Password",
-      value: inputFields.password,
-    },
-  ];
 
   return (
     <>
@@ -167,49 +126,64 @@ export default function SignUp() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: "80px ",
+          padding: "80px ",
+          boxShadow: " 1px 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
         }}
       >
-        <Card variant="outlined" sx={{ padding: "10px", minWidth: "450px" }}>
+        <Card
+          variant="outlined"
+          sx={{
+            padding: "10px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <CardContent>
+            <img src={logo} alt="logo" width={"350px"} height={"350px"} />
+          </CardContent>
+          <CardContent sx={{ width: "400px" }}>
             <Typography
               gutterBottom
               sx={{ color: "text.secondary", fontSize: 38 }}
             >
               Sign Up
             </Typography>
-            {inputFieldArray?.map((field) => {
-              return (
-                <Typography
-                  variant="h5"
-                  component="div"
-                  marginBottom="25px"
-                  key={field.id}
-                >
-                  <TextField
-                    required
-                    type={field.type}
-                    color={field.helperText && "error"}
-                    label={field.label}
-                    sx={{ width: "100%" }}
-                    value={field.value}
-                    name={field.name}
-                    onChange={handleChange}
-                  />
-                  <FormHelperText error>{field.helperText}</FormHelperText>
-                </Typography>
-              );
-            })}
-            <Button variant="outlined" onClick={handleFormSubmit}>
+            {inputFieldArray.map((field) => (
+              <Typography
+                variant="h6"
+                component="div"
+                marginBottom="15px"
+                key={field.id}
+              >
+                <TextField
+                  required
+                  variant="filled"
+                  type={field.type}
+                  label={field.label}
+                  sx={{
+                    width: "100%",
+                  }}
+                  value={inputFields[field.name]}
+                  name={field.name}
+                  onChange={handleChange}
+                  error={!!errors[field.name]}
+                />
+                {errors[field.name] && (
+                  <FormHelperText error>{errors[field.name]}</FormHelperText>
+                )}
+              </Typography>
+            ))}
+            <Button variant="contained" onClick={handleFormSubmit}>
               Sign Up
-            </Button>
+            </Button>{" "}
+            <CardActions>
+              <p>Already have an account? </p>
+              <Link to="/signin">
+                <u>Sign In</u>
+              </Link>
+            </CardActions>
           </CardContent>
-          <CardActions>
-            <p>Don't have any account? </p>
-            <Link to={"/signin"}>
-              <u>Sing In</u>
-            </Link>
-          </CardActions>
         </Card>
       </Box>
       <ToastContainer />
