@@ -5,18 +5,16 @@ import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { setAccessToken } from "../api/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 import { toast, ToastContainer } from "react-toastify";
-import userImage from "../assets/user.svg"
+import userImage from "../assets/user.svg";
 
 export default function UserProfileButton() {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const userData = useSelector((state) => state.user.loggedUserData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
-  console.log("userData", userData);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -24,23 +22,23 @@ export default function UserProfileButton() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleProfilePage =()=>{
-    navigate("/profile")
-  }
+  const handleProfilePage = () => {
+    navigate("/profile");
+    setAnchorEl(null);
+  };
 
   const handleLogout = () => {
     Cookies.remove("token");
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
-        navigate("/signin");
-        dispatch(setAccessToken(false));
+        dispatch(setAuthToken(""));
+        dispatch(setUserLoggedIn(false));
       },
     });
   };
   return (
     <>
-    
       <Stack direction="row" spacing={2}>
         <Avatar
           alt="Travis Howard"
@@ -59,15 +57,22 @@ export default function UserProfileButton() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        sx={{ minWidth: "200px" }}
         MenuListProps={{
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem onClick={handleProfilePage} sx={{ width: "100px" }}>
+        <MenuItem
+          onClick={handleProfilePage}
+          sx={{ width: "150px", fontSize: "22px", textAlign: "center" }}
+        >
           Profile
         </MenuItem>
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ width: "150px", fontSize: "22px", textAlign: "center" }}
+        >
+          Logout
+        </MenuItem>
       </Menu>
       <ToastContainer />
     </>

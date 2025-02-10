@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import Cookies from "js-cookie";
 import { useEffect, useState, createContext } from "react";
@@ -5,21 +6,17 @@ import { useEffect, useState, createContext } from "react";
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null); 
-  console.log("userToken 1 side", token);
+  const [cookie, setCookie] = useState(Cookies.get("token") || null);
 
   useEffect(() => {
-    const isToken = Cookies.get("token") || ""; 
-    if (isToken !== token) {
-      setToken(isToken); 
-      console.log("isToken inside useEffect", isToken);
+    const isToken = Cookies.get("token");
+    if (isToken !== cookie) {
+      setCookie(isToken);
     }
-  }, [token]);
-
-  console.log("userToken outside useEffect", token);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ token, setToken }}>
+    <AuthContext.Provider value={{ cookie, setCookie }}>
       {children}
     </AuthContext.Provider>
   );

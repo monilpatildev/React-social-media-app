@@ -13,7 +13,7 @@ import * as Yup from "yup";
 import logo from "../assets/logo.jpg";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setAccessToken } from "../api/auth/authSlice";
+import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 
 import { useSignInUserMutation } from "../api/api";
 
@@ -76,12 +76,12 @@ export default function SignIn() {
         toast.error(response.error.data.message);
       } else {
         Cookies.set("token", response.data.data.token, { expires: 7 });
+        navigate("/");
+        dispatch(setAuthToken(response.data.data.token));
+        dispatch(setUserLoggedIn(true));
         toast.success("Sign up successfully!", {
           autoClose: 500,
-          onClose: () => {
-            navigate("/");
-            dispatch(setAccessToken(true));
-          },
+          onClose: () => {},
         });
       }
     } catch (err) {

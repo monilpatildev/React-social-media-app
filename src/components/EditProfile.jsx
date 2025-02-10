@@ -1,27 +1,29 @@
-import { Link, useNavigate } from "react-router-dom";
+/* eslint-disable react/prop-types */
+
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { Button, FormHelperText } from "@mui/material";
+import {
+  Button,
+  FormControlLabel,
+  FormHelperText,
+  Switch,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
 
+import { useDispatch, useSelector } from "react-redux";
+import { useEditProfileMutation } from "../api/api";
+import { setLoggedUserData } from "../api/user/userSlice";
+import CloseIcon from "@mui/icons-material/Close";
+
 const inputFieldArray = [
   { id: "0", type: "text", label: "First Name", name: "firstname" },
   { id: "1", type: "text", label: "Last Name", name: "lastname" },
-  { id: "2", type: "text", label: "Username", name: "username" },
-  { id: "3", type: "email", label: "Email", name: "email" },
-  { id: "4", type: "password", label: "Password", name: "password" },
-  {
-    id: "5",
-    type: "password",
-    label: "Confirm Password",
-    name: "confirmpassword",
-  },
 ];
 
 const validationSchema = Yup.object({
@@ -31,33 +33,20 @@ const validationSchema = Yup.object({
   lastname: Yup.string()
     .min(4, "Last name must be at least 4 characters")
     .required("Enter last name"),
-  username: Yup.string()
-    .min(6, "Username must be at least 6 characters")
-    .required("Enter username"),
-  email: Yup.string().email("Enter valid email").required("Enter email"),
-  password: Yup.string()
-    .min(8, "Password should be more than 8 characters")
-    .required("Enter password"),
-  confirmpassword: Yup.string()
-    .required("Enter Confirm password")
-    .oneOf(
-      [Yup.ref("password"), null],
-      "Password and Confirm Password doesn't match",
-    ),
 });
 
 const EditProfile = ({ setEditForm }) => {
+  const userData = useSelector((state) => state.user.loggedUserData);
+  const dispatch = useDispatch();
+  const [editProfile] = useEditProfileMutation();
+
   const [inputFields, setInputFields] = useState({
-    firstname: "",
-    lastname: "",
-    username: "",
-    email: "",
-    password: "",
-    confirmpassword: "",
+    firstname: userData.firstname,
+    lastname: userData.lastname,
+    account: userData.isPrivate,
   });
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isSubmitted) {
@@ -75,9 +64,11 @@ const EditProfile = ({ setEditForm }) => {
   }, [inputFields, isSubmitted]);
 
   const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
     setInputFields((prevFields) => ({
       ...prevFields,
-      [e.target.name]: e.target.value,
+      [name]: newValue,
     }));
   };
 
@@ -85,36 +76,37 @@ const EditProfile = ({ setEditForm }) => {
     e.preventDefault();
     setIsSubmitted(true);
 
-    const { firstname, lastname, username, email, password } = inputFields;
+    const { firstname, lastname, account } = inputFields;
 
     try {
       const newUser = {
         firstname,
         lastname,
-        username,
-        email,
-        password,
+        isPrivate: account,
       };
       await validationSchema.validate(inputFields, { abortEarly: false });
-      console.log(newUser);
+      const response = await editProfile(newUser);
+      setEditForm(false);
 
-      // if (response.error) {
-      //   toast.error(response.error.data.message);
-      // } else {
-      //   toast.success("Sign up successfully!", {
-      //     autoClose: 500,
-      //     onClose: () => navigate("/signin"),
-      //   });
-      // }
+      if (response.error) {
+        toast.error(response.error.data.message);
+      } else {
+        toast.success("User updated!", {
+          autoClose: 500,
+        });
+        dispatch(
+          setLoggedUserData({
+            ...userData,
+            ...response.data.data,
+          }),
+        );
+      }
     } catch (err) {
-      console.log("Validation failed", err);
+      console.log("Edit profile failed", err);
     }
   };
-  const handleCloseForm =()=>{
-    setEditForm(false)
-  }
   return (
-    <div>
+    <>
       <Box
         sx={{
           backgroundColor: "black",
@@ -143,18 +135,24 @@ const EditProfile = ({ setEditForm }) => {
           sx={{
             padding: "10px",
             display: "flex",
-            justifyContent: "center",
+
+            flexDirection: "column",
             alignItems: "center",
             boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
             borderRadius: "24px",
           }}
         >
+          <Box sx={{ display: "flex", justifyContent: "end", width: "100%" }}>
+            <CloseIcon
+              sx={{ cursor: "pointer", float: "right" }}
+              onClick={() => setEditForm(false)}
+            />
+          </Box>
           <CardContent sx={{ width: "400px" }}>
             <Typography
-              gutterBottom
               sx={{ color: "text.secondary", fontSize: 38 }}
             >
-              Sign Up
+              Edit Profile
             </Typography>
             {inputFieldArray.map((field) => (
               <Typography
@@ -181,21 +179,35 @@ const EditProfile = ({ setEditForm }) => {
                 )}
               </Typography>
             ))}
-
-            <CardActions>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={inputFields.account}
+                  onChange={handleChange}
+                  name="account"
+                />
+              }
+              label="Public Account"
+            />
+            <CardActions
+              sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
+            >
               <Button variant="contained" onClick={handleFormSubmit}>
                 Save
               </Button>{" "}
-              <Button variant="contained" onClick={handleCloseForm}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => setEditForm(false)}
+              >
                 Cancel
               </Button>{" "}
             </CardActions>
           </CardContent>
         </Card>
-
-        <ToastContainer />
       </Box>
-    </div>
+      <ToastContainer />
+    </>
   );
 };
 

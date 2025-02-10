@@ -1,11 +1,21 @@
+/* eslint-disable no-unused-vars */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { setAuthToken } from "../api/auth/authSlice";
+import { setLoggedUserData } from "../api/user/userSlice";
 
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.1.172:4004/api/v1/",
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.token;
+      if (token) {
+        headers.set("Authorization", `${token}`);
+      }
+      return headers;
+    },
   }),
-
+  tagTypes: ["GetLoginUser", "GetPost"],
   endpoints: (builder) => ({
     signUpUser: builder.mutation({
       query: (user) => ({
@@ -14,31 +24,97 @@ export const api = createApi({
         body: user,
       }),
     }),
+
     signInUser: builder.mutation({
       query: (user) => ({
         url: "/auth/login",
         method: "POST",
         body: user,
       }),
+      onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          console.log("signInUser", data.data.token);
+          dispatch(setAuthToken(data.data.token));
+        } catch (error) {
+          dispatch(setAuthToken(null));
+        }
+      },
     }),
-    getUser: builder.query({
-      query: (userToken) => ({
+
+    getLoginUser: builder.query({
+      query: () => ({
         url: "/users/get-user-profile",
-        headers: {
-          Authorization: `${userToken}`,
+      }),
+      providesTags: ["GetLoginUser"],
+      onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setLoggedUserData(data.data));
+        } catch (error) {
+          dispatch(setLoggedUserData(null));
+        }
+      },
+      invalidatesTags: ["GetLoginUser"],
+    }),
+
+    getPost: builder.query({
+      query: ({ pageSize, pageNumber }) => ({
+        url: `posts/get-feed-post?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+      }),
+      providesTags: ["GetPost"],
+    }),
+
+    createPost: builder.mutation({
+      query: (formData) => ({
+        url: "/posts/create-post",
+        method: "POST",
+        body: formData,
+      }),
+      invalidatesTags: ["GetPost"],
+    }),
+
+    editProfile: builder.mutation({
+      query: (newUser) => ({
+        url: "/users/update-user-profile",
+        method: "PATCH",
+        body: newUser,
+      }),
+      invalidatesTags: ["GetLoginUser"],
+    }),
+
+    deleteUser: builder.query({
+      query: () => ({
+        url: "/users/delete-users",
+        method: "DELETE",
+      }),
+    }),
+
+    getUser: builder.query({
+      query: (userId) => ({
+        url: `users/show-user-profile?userId=${userId}`,
+      }),
+      transformResponse(res) {
+        return res?.data;
+      },
+      providesTags: ["GetPost"],
+    }),
+
+    getImage: builder.query({
+      query: (id) => ({
+        url: `/posts/file/${id}`,
+        responseHandler: async (response) => {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          return url;
         },
       }),
     }),
-    getPost: builder.query({
-      query: (args) => {
-        const { pageSize, pageNumber } = args;
-        console.log(args);
-        
-        return {
-          url: "posts/get-feed-post?pageSize=5&pageNumber=1",
-          params: { pageSize, pageNumber },
-        };
-      },
+
+    getAllUsers: builder.query({
+      query: ({ pageSize, pageNumber }) => ({
+        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+      }),
     }),
   }),
 });
@@ -46,6 +122,12 @@ export const api = createApi({
 export const {
   useSignUpUserMutation,
   useSignInUserMutation,
-  useGetUserQuery,
+  useGetLoginUserQuery,
   useGetPostQuery,
+  useCreatePostMutation,
+  useEditProfileMutation,
+  useDeleteUserQuery,
+  useGetImageQuery,
+  useGetUserQuery,
+  useGetAllUsersQuery,
 } = api;

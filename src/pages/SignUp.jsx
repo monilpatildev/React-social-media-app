@@ -127,7 +127,6 @@ export default function SignUp() {
           justifyContent: "center",
           alignItems: "center",
           padding: "80px ",
-          boxShadow: " 1px 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
         }}
       >
         <Card
@@ -137,6 +136,9 @@ export default function SignUp() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            border: "none",
+            borderRadius: "24px",
+            boxShadow: " 1px 0px 10px rgba(0, 0, 0, 0.5)",
           }}
         >
           <CardContent>
@@ -161,9 +163,7 @@ export default function SignUp() {
                   variant="filled"
                   type={field.type}
                   label={field.label}
-                  sx={{
-                    width: "100%",
-                  }}
+                  sx={{ borderRadius: "50%" }}
                   value={inputFields[field.name]}
                   name={field.name}
                   onChange={handleChange}
