@@ -65,6 +65,8 @@ const UserProfile = () => {
             justifyContent: "start",
             padding: "10px 300px",
             width: "100%",
+            height: "91vh",
+            backgroundColor: "#f0f0f0",
           }}
         >
           <Box sx={{ height: "20px" }}>

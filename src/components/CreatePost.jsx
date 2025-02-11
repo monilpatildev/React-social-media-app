@@ -1,4 +1,6 @@
-/* eslint-disable react/prop-types */
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -7,17 +9,16 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import {
   Button,
-  FormControlLabel,
   FormHelperText,
+  InputLabel,
   styled,
   Switch,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import * as Yup from "yup";
 import { useCreatePostMutation } from "../api/api";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router";
+import { ToastContainer, toast } from "react-toastify";
+import { useState } from "react";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -42,108 +43,55 @@ const validationSchema = Yup.object({
     .required("Select image")
     .test(
       "fileType",
-      "Unsupported file format. Allowed: JPEG, PNG, GIF",
+      "Unsupported file format. Allowed: JPEG, PNG",
       (value) => value && ["image/jpeg", "image/png"].includes(value.type),
     ),
 });
 
 const CreatePost = ({ setShowCreatePost }) => {
-  const [inputFields, setInputFields] = useState({
-    title: "",
-    description: "",
-    image: null,
-    isPrivate: false,
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      image: null,
+      isPrivate: false,
+    },
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [createPost, { isLoading }] = useCreatePostMutation();
   const navigate = useNavigate();
+  const [imagePreview, setImagePreview] = useState(null);
 
-  useEffect(() => {
-    if (isSubmitted) {
-      validationSchema
-        .validate(inputFields, { abortEarly: false })
-        .then(() => setErrors({}))
-        .catch((err) => {
-          const newErrors = {};
-          err.inner.forEach((error) => {
-            newErrors[error.path] = error.message;
-          });
-          setErrors(newErrors);
-        });
-    }
-  }, [inputFields, isSubmitted]);
-
-  const handleChange = (e) => {
-    setInputFields((prevFields) => ({
-      ...prevFields,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setInputFields((prevFields) => ({
-        ...prevFields,
-        image: e.target.files[0],
-      }));
-    }
-  };
-
-  const handleCheckboxChange = (e) => {
-    setInputFields((prevFields) => ({
-      ...prevFields,
-      isPrivate: e.target.checked, // Update isPrivate value
-    }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-
+  const onSubmit = async (data) => {
     try {
-      await validationSchema.validate(inputFields, { abortEarly: false });
-
       const formData = new FormData();
-      formData.append("title", inputFields.title);
-      formData.append("description", inputFields.description);
-      formData.append("isPrivate", String(inputFields.isPrivate));
-
-      if (inputFields.image) {
-        formData.append("image", inputFields.image);
-      }
-
-      console.log("FormData Entries:");
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("isPrivate", data.isPrivate);
+      formData.append("image", data.image);
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
-
-      const response = await createPost(formData).unwrap();
-      toast.success("Post created successfully!", {
-        autoClose: 800,
-      });
+      await createPost(formData).unwrap();
+      toast.success("Post created successfully!", { autoClose: 800 });
       navigate("/");
-      console.log("Server Response:", response);
       setShowCreatePost(false);
-    } catch (err) {
-      if (err.inner) {
-        const newErrors = {};
-        err.inner.forEach((error) => {
-          newErrors[error.path] = error.message;
-        });
-        setErrors(newErrors);
-      } else {
-        console.error("Error submitting form:", err);
-        toast.error("Failed to create post.", {
-          autoClose: 800,
-        });
-      }
+    } catch (error) {
+      console.log(error);
+
+      toast.error(`Failed to create post.${error}`);
     }
   };
 
   return (
-    <div>
+    <>
       <Box
+        component="div"
         sx={{
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           position: "fixed",
@@ -151,7 +99,7 @@ const CreatePost = ({ setShowCreatePost }) => {
           left: 0,
           width: "100%",
           height: "100%",
-          zIndex: 10,
+          zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
       />
       <Box
@@ -163,7 +111,7 @@ const CreatePost = ({ setShowCreatePost }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          zIndex: 20,
+          zIndex: (theme) => theme.zIndex.drawer + 3,
         }}
       >
         <Card
@@ -172,108 +120,203 @@ const CreatePost = ({ setShowCreatePost }) => {
             padding: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
-            width: "400px",
-            backgroundColor: "white",
+            width: "600px",
+            backgroundColor: "#f0f0f0",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "right" }}>
-            <CloseIcon
-              sx={{ cursor: "pointer" }}
-              onClick={() => setShowCreatePost(false)}
-            />
-          </Box>
-          <CardContent
-            sx={{ display: "flex", flexDirection: "column", gap: "0px" }}
-          >
-            <Typography
-              gutterBottom
-              sx={{
-                color: "text.secondary",
-                fontSize: 24,
-                textAlign: "center",
-              }}
-            >
-              Create Post
-            </Typography>
-            <TextField
-              required
-              variant="filled"
-              type="text"
-              label="Title"
-              sx={{ width: "100%", marginBottom: "15px" }}
-              value={inputFields.title}
-              name="title"
-              onChange={handleChange}
-              error={!!errors.title}
-            />
-            {errors.title && (
-              <FormHelperText error>{errors.title}</FormHelperText>
-            )}
-            <TextField
-              required
-              variant="filled"
-              multiline
-              minRows={4}
-              label="Description"
-              sx={{ width: "100%", marginBottom: "15px" }}
-              value={inputFields.description}
-              name="description"
-              onChange={handleChange}
-              error={!!errors.description}
-            />{" "}
-            {errors.description && (
-              <FormHelperText error>{errors.description}</FormHelperText>
-            )}
-            <Button
-              component="label"
-              variant="outlined"
-              color="primary"
-              sx={{ width: "100%", marginBottom: "15px" }}
-            >
-              Upload Post Image
-              <VisuallyHiddenInput
-                type="file"
-                name="image"
-                onChange={handleFileChange}
-              />
-            </Button>
-            {errors.image && (
-              <FormHelperText error>{errors.image}</FormHelperText>
-            )}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={inputFields.isPrivate}
-                  onChange={handleCheckboxChange}
-                  name="isc"
-                />
-              }
-              label="Private Post"
-            />
-            <CardActions
-              sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleFormSubmit}
-                disabled={isLoading}
+          <CardContent sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                gutterBottom
+                sx={{
+                  fontSize: 28,
+                  textAlign: "center",
+                }}
               >
-                {isLoading ? "Posting..." : "Post"}
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
+                Create Post
+              </Typography>
+              <CloseIcon
+                sx={{ cursor: "pointer", fontSize: 34 }}
                 onClick={() => setShowCreatePost(false)}
+              />
+            </Box>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <InputLabel sx={{ m: "10px" }}>Title *</InputLabel>
+              <Controller
+                name="title"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    type="text"
+                    placeholder="Enter Title"
+                    sx={{
+                      width: "100%",
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
+                        borderRadius: "14px",
+                        "& fieldset": {
+                          borderRadius: "14px",
+                        },
+                      },
+                      "& .MuiInputBase-input": {
+                        padding: "15px",
+                      },
+                    }}
+                    {...field}
+                    error={!!errors.title}
+                    helperText={errors.title?.message}
+                  />
+                )}
+              />
+
+              <InputLabel sx={{ m: "10px" }}>Description *</InputLabel>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    multiline
+                    minRows={4}
+                    placeholder="Enter Description"
+                    sx={{
+                      width: "100%",
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
+                        borderRadius: "14px",
+                        "& fieldset": {
+                          borderRadius: "14px",
+                        },
+                      },
+                      "& .MuiInputBase-input": {},
+                    }}
+                    {...field}
+                    error={!!errors.description}
+                    helperText={errors.description?.message}
+                  />
+                )}
+              />
+              <Box
+                sx={{
+                  mt: "20px",
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  width: "100%",
+                }}
               >
-                Cancel
-              </Button>
-            </CardActions>
+                <Box
+                  sx={{
+                    mt: "20px",
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    color="primary"
+                    sx={{
+                      width: "200px",
+                      marginBottom: "15px",
+                      borderRadius: "15px",
+                      padding: "10px",
+                      height: "35px",
+                      px: "30px",
+                    }}
+                  >
+                    {imagePreview ? "Change Image" : "Upload  Image"}
+                    <Controller
+                      name="image"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <VisuallyHiddenInput
+                            type="file"
+                            accept="image/jpeg, image/png"
+                            onChange={(e) => {
+                              setValue("image", e.target.files[0]);
+                              setImagePreview(
+                                URL.createObjectURL(e.target.files[0]),
+                              );
+                            }}
+                          />
+                        </>
+                      )}
+                    />{" "}
+                  </Button>
+                  {errors.image && (
+                    <FormHelperText error>
+                      {errors.image.message}
+                    </FormHelperText>
+                  )}
+                </Box>
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    style={{
+                      width: "60%",
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "15px",
+                    }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      marginBottom: "10px",
+                      height: "150px",
+                      width: "100%",
+                      border: "2px solid grey",
+                      color: "#9c9b9a",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderStyle: "dashed",
+                      borderRadius: "15px",
+                    }}
+                  >
+                    Preview
+                  </Box>
+                )}
+              </Box>
+              <Controller
+                name="isPrivate"
+                control={control}
+                render={({ field }) => (
+                  <Switch {...field} checked={!!field.value} />
+                )}
+              />
+              <Typography>Private Post</Typography>
+
+              <CardActions
+                sx={{ display: "flex", justifyContent: "right", gap: "10px" }}
+              >
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => setShowCreatePost(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Posting..." : "Post"}
+                </Button>
+              </CardActions>
+            </form>
           </CardContent>
         </Card>
       </Box>
       <ToastContainer />
-    </div>
+    </>
   );
 };
 

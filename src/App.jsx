@@ -1,12 +1,11 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext, useLayoutEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserLoggedIn } from "./api/auth/authSlice.js";
+import { AuthContext } from "./context/AuthContext.jsx";
+import Home from "@pages/Home";
 import SignIn from "@pages/SignIn";
 import SignUp from "@pages/SignUp";
-import Home from "@pages/Home";
-import { AuthContext } from "./context/AuthContext.jsx";
-import "./App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserLoggedIn, setAuthToken } from "./api/auth/authSlice.js";
 import UserProfile from "@pages/UserProfile.jsx";
 import UserList from "@pages/UserList.jsx";
 
@@ -15,9 +14,8 @@ function App() {
   const { cookie } = useContext(AuthContext);
   const userLoggedIn = useSelector((state) => state.auth.userLoggedIn);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (cookie) {
-      dispatch(setAuthToken(cookie));
       dispatch(setUserLoggedIn(true));
     } else {
       dispatch(setUserLoggedIn(false));
@@ -31,7 +29,7 @@ function App() {
           <>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<UserProfile />} />
-            <Route path="/:id" element={<UserProfile />} />
+            <Route path="/user/:id" element={<UserProfile />} />
             <Route path="/users" element={<UserList />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>

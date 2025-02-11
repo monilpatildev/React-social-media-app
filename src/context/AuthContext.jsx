@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/prop-types */
+// authContext.jsx
 import Cookies from "js-cookie";
 import { useEffect, useState, createContext } from "react";
 
@@ -10,10 +9,10 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const isToken = Cookies.get("token");
-    if (isToken !== cookie) {
+    if (isToken ) {
       setCookie(isToken);
     }
-  }, []);
+  }, [cookie]);
 
   return (
     <AuthContext.Provider value={{ cookie, setCookie }}>

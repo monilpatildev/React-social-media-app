@@ -1,22 +1,26 @@
-import { Avatar, Box, Stack, Typography } from "@mui/material";
+/* eslint-disable react/prop-types */
+import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
 import userImage from "../assets/user.svg";
 
-
 const UserCard = ({ item }) => {
-
-
   return (
-    <div>
+    <Box
+      sx={{
+        pr: 2,
+        margin: "5px 10px",
+        display: "flex",
+        padding: "10px",
+        alignItems: "center",
+        gap: "10px",
+        borderRadius: "12px",
+        backgroundColor: "#fff",
+        justifyContent: "space-between",
+      }}
+    >
       <Box
         sx={{
-          pr: 2,
-          margin: "5px 10px",
           display: "flex",
-          padding: "10px",
-          alignItems: "center",
-          gap: "10px",
-          borderRadius: "12px",
-          boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
+          alignItems:"center"
         }}
       >
         <Stack direction="row" spacing={2} sx={{ margin: "5px 30px" }}>
@@ -73,7 +77,17 @@ const UserCard = ({ item }) => {
           </Typography>
         </Box>
       </Box>
-    </div>
+      {/* <Box
+        sx={{
+          pr: 2,
+          margin: "10px 25px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Button variant="contained">Follow</Button>
+      </Box> */}
+    </Box>
   );
 };
 

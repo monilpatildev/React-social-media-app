@@ -32,7 +32,7 @@ export default function UserProfileButton() {
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
-        dispatch(setAuthToken(""));
+        dispatch(setAuthToken(null));
         dispatch(setUserLoggedIn(false));
       },
     });
@@ -73,8 +73,8 @@ export default function UserProfileButton() {
         >
           Logout
         </MenuItem>
-      </Menu>
       <ToastContainer />
+      </Menu>
     </>
   );
 }

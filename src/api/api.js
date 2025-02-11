@@ -15,7 +15,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["GetLoginUser", "GetPost"],
+  tagTypes: ["GetLoginUser", "GetPost", "GetAllUsers"],
   endpoints: (builder) => ({
     signUpUser: builder.mutation({
       query: (user) => ({
@@ -62,7 +62,24 @@ export const api = createApi({
       query: ({ pageSize, pageNumber }) => ({
         url: `posts/get-feed-post?pageSize=${pageSize}&pageNumber=${pageNumber}`,
       }),
+   
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
+      },
       providesTags: ["GetPost"],
+    }),
+
+    getAllUsers: builder.query({
+      query: ({ pageSize, pageNumber }) => ({
+        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+      }),
+
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
+      },
+      providesTags: (result, error, { pageNumber }) =>
+        result ? [{ type: "GetAllUsers", id: pageNumber }] : ["GetAllUsers"],
+      invalidatesTags: ["GetAllUsers"],
     }),
 
     createPost: builder.mutation({
@@ -108,12 +125,6 @@ export const api = createApi({
           const url = URL.createObjectURL(blob);
           return url;
         },
-      }),
-    }),
-
-    getAllUsers: builder.query({
-      query: ({ pageSize, pageNumber }) => ({
-        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
       }),
     }),
   }),

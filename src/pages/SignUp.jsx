@@ -1,31 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import { Button, FormHelperText } from "@mui/material";
-import { useState, useEffect } from "react";
+import {
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  InputLabel,
+} from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
-import logo from "../assets/logo.jpg";
-
 import { useSignUpUserMutation } from "../api/api";
-
-const inputFieldArray = [
-  { id: "0", type: "text", label: "First Name", name: "firstname" },
-  { id: "1", type: "text", label: "Last Name", name: "lastname" },
-  { id: "2", type: "text", label: "Username", name: "username" },
-  { id: "3", type: "email", label: "Email", name: "email" },
-  { id: "4", type: "password", label: "Password", name: "password" },
-  {
-    id: "5",
-    type: "password",
-    label: "Confirm Password",
-    name: "confirmpassword",
-  },
-];
+import logo from "../assets/logo.jpg";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const validationSchema = Yup.object({
   firstname: Yup.string()
@@ -42,69 +31,31 @@ const validationSchema = Yup.object({
     .min(8, "Password should be more than 8 characters")
     .required("Enter password"),
   confirmpassword: Yup.string()
-    .required("Enter Confirm password")
+    .required("Enter confirm password")
     .oneOf(
       [Yup.ref("password"), null],
-      "Password and Confirm Password doesn't match",
+      "Password and Confirm Password don't match",
     ),
 });
 
 export default function SignUp() {
-  const [inputFields, setInputFields] = useState({
-    firstname: "",
-    lastname: "",
-    username: "",
-    email: "",
-    password: "",
-    confirmpassword: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const [signUpUser] = useSignUpUserMutation();
 
-  useEffect(() => {
-    if (isSubmitted) {
-      validationSchema
-        .validate(inputFields, { abortEarly: false })
-        .then(() => setErrors({}))
-        .catch((err) => {
-          const newErrors = {};
-          err.inner.forEach((error) => {
-            newErrors[error.path] = error.message;
-          });
-          setErrors(newErrors);
-        });
-    }
-  }, [inputFields, isSubmitted]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
 
-  const handleChange = (e) => {
-    setInputFields((prevFields) => ({
-      ...prevFields,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-
-    const { firstname, lastname, username, email, password } = inputFields;
-
+  const onSubmit = async (data) => {
     try {
-      const newUser = {
-        firstname,
-        lastname,
-        username,
-        email,
-        password,
-      };
-      await validationSchema.validate(inputFields, { abortEarly: false });
-      console.log(newUser);
+      const { firstname, lastname, username, email, password } = data;
+      const newUser = { firstname, lastname, username, email, password };
 
       const response = await signUpUser(newUser);
-      console.log(response);
-
       if (response.error) {
         toast.error(response.error.data.message);
       } else {
@@ -114,7 +65,7 @@ export default function SignUp() {
         });
       }
     } catch (err) {
-      console.log("Validation failed", err);
+      console.log("Sign-up failed", err);
     }
   };
 
@@ -122,67 +73,116 @@ export default function SignUp() {
     <>
       <Box
         sx={{
-          textAlign: "center",
+          minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: "80px ",
+          background: "#f0f2f5",
+          padding: "20px",
         }}
       >
         <Card
           variant="outlined"
           sx={{
-            padding: "10px",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            border: "none",
-            borderRadius: "24px",
-            boxShadow: " 1px 0px 10px rgba(0, 0, 0, 0.5)",
+            flexDirection: { xs: "column", md: "row" },
+            maxWidth: 900,
+            borderRadius: "48px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            overflow: "hidden",
+            backgroundImage:
+              "linear-gradient(-120deg,rgba(255, 255, 255,0.3),rgba(245, 245, 174,0.3))",
           }}
         >
-          <CardContent>
-            <img src={logo} alt="logo" width={"350px"} height={"350px"} />
-          </CardContent>
-          <CardContent sx={{ width: "400px" }}>
-            <Typography
-              gutterBottom
-              sx={{ color: "text.secondary", fontSize: 38 }}
-            >
+          <CardContent sx={{ width: { md: 400 }, p: 4 }}>
+            <Typography variant="h4" sx={{ mb: 3, textAlign: "center" }}>
               Sign Up
             </Typography>
-            {inputFieldArray.map((field) => (
-              <Typography
-                variant="h6"
-                component="div"
-                marginBottom="15px"
-                key={field.id}
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {[
+                { name: "firstname", label: "First Name", type: "text" },
+                { name: "lastname", label: "Last Name", type: "text" },
+                { name: "username", label: "Username", type: "text" },
+                { name: "email", label: "Email", type: "email" },
+                { name: "password", label: "Password", type: "password" },
+                {name: "confirmpassword",label: "Confirm Password",type: "password",
+                },
+              ].map((field) => (
+                <Box key={field.name} sx={{ mb: 2 }}>
+                  <InputLabel shrink sx={{ mx: "20px" }}>
+                    {field.label}
+                  </InputLabel>
+                  <TextField
+                    fullWidth
+                    {...register(field.name)}
+                    type={field.type}
+                    error={!!errors[field.name]}
+                    helperText={errors[field.name]?.message}
+                    sx={{
+                      width: "100%",
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
+                        borderRadius: "48px",
+                        "& fieldset": { borderRadius: "48px" },
+                      },
+                      "& .MuiInputBase-input": { padding: "10px" },
+                    }}
+                  />
+                </Box>
+              ))}
+
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                sx={{
+                  py: 1.5,
+                  mt: 2,
+                  borderRadius: "48px",
+                  backgroundColor: "#FFCA28",
+                  color: "black",
+                }}
               >
-                <TextField
-                  required
-                  variant="filled"
-                  type={field.type}
-                  label={field.label}
-                  sx={{ borderRadius: "50%" }}
-                  value={inputFields[field.name]}
-                  name={field.name}
-                  onChange={handleChange}
-                  error={!!errors[field.name]}
-                />
-                {errors[field.name] && (
-                  <FormHelperText error>{errors[field.name]}</FormHelperText>
-                )}
+                Sign Up
+              </Button>
+            </form>
+
+            <CardActions sx={{ justifyContent: "center", mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Already have an account?{" "}
+                <Link
+                  to="/signin"
+                  style={{
+                    textDecoration: "none",
+                    fontWeight: "bold",
+                    color: "#1976d2",
+                  }}
+                >
+                  Sign In
+                </Link>
               </Typography>
-            ))}
-            <Button variant="contained" onClick={handleFormSubmit}>
-              Sign Up
-            </Button>{" "}
-            <CardActions>
-              <p>Already have an account? </p>
-              <Link to="/signin">
-                <u>Sign In</u>
-              </Link>
             </CardActions>
+          </CardContent>
+
+          <CardContent
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              p: 4,
+            }}
+          >
+            <Box
+              component="img"
+              src={logo}
+              alt="logo"
+              sx={{
+                width: { xs: 250, md: 350 },
+                height: { xs: 250, md: 350 },
+                mixBlendMode: "multiply",
+              }}
+            />
           </CardContent>
         </Card>
       </Box>

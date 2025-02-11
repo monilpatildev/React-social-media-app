@@ -1,38 +1,31 @@
-/* eslint-disable react/prop-types */
-
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
 import {
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+  Box,
+  TextField,
   Button,
   FormControlLabel,
-  FormHelperText,
+  InputLabel,
   Switch,
 } from "@mui/material";
-import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import * as Yup from "yup";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEditProfileMutation } from "../api/api";
 import { setLoggedUserData } from "../api/user/userSlice";
 import CloseIcon from "@mui/icons-material/Close";
 
-const inputFieldArray = [
-  { id: "0", type: "text", label: "First Name", name: "firstname" },
-  { id: "1", type: "text", label: "Last Name", name: "lastname" },
-];
-
 const validationSchema = Yup.object({
   firstname: Yup.string()
-    .min(4, "First name must be at least 4 characters")
-    .required("Enter first name"),
+    .required("Enter first name")
+    .min(4, "First name must be at least 4 characters"),
   lastname: Yup.string()
-    .min(4, "Last name must be at least 4 characters")
-    .required("Enter last name"),
+    .required("Enter last name")
+    .min(4, "Last name must be at least 4 characters"),
 });
 
 const EditProfile = ({ setEditForm }) => {
@@ -40,60 +33,34 @@ const EditProfile = ({ setEditForm }) => {
   const dispatch = useDispatch();
   const [editProfile] = useEditProfileMutation();
 
-  const [inputFields, setInputFields] = useState({
-    firstname: userData.firstname,
-    lastname: userData.lastname,
-    account: userData.isPrivate,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      firstname: userData.firstname,
+      lastname: userData.lastname,
+      account: userData.isPrivate,
+    },
   });
-  const [errors, setErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  useEffect(() => {
-    if (isSubmitted) {
-      validationSchema
-        .validate(inputFields, { abortEarly: false })
-        .then(() => setErrors({}))
-        .catch((err) => {
-          const newErrors = {};
-          err.inner.forEach((error) => {
-            newErrors[error.path] = error.message;
-          });
-          setErrors(newErrors);
-        });
-    }
-  }, [inputFields, isSubmitted]);
-
-  const handleChange = (e) => {
-    const { name, type, value, checked } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
-    setInputFields((prevFields) => ({
-      ...prevFields,
-      [name]: newValue,
-    }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-
-    const { firstname, lastname, account } = inputFields;
-
+  const onSubmit = async (data) => {
     try {
       const newUser = {
-        firstname,
-        lastname,
-        isPrivate: account,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        isPrivate: data.account,
       };
-      await validationSchema.validate(inputFields, { abortEarly: false });
       const response = await editProfile(newUser);
       setEditForm(false);
 
       if (response.error) {
         toast.error(response.error.data.message);
       } else {
-        toast.success("User updated!", {
-          autoClose: 500,
-        });
+        toast.success("User updated!", { autoClose: 500 });
         dispatch(
           setLoggedUserData({
             ...userData,
@@ -105,103 +72,113 @@ const EditProfile = ({ setEditForm }) => {
       console.log("Edit profile failed", err);
     }
   };
+
   return (
     <>
       <Box
+        component="div"
         sx={{
-          backgroundColor: "black",
-          top: "0px",
-          left: "0",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          position: "fixed",
+          top: 0,
+          left: 0,
           width: "100%",
           height: "100%",
-          opacity: "50%",
-          position: "absolute",
+          zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
-      ></Box>
+      />
+
       <Box
         sx={{
-          textAlign: "center",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: "150px ",
-          position: "absolute",
-          top: "-50px",
-          left: "31%",
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: (theme) => theme.zIndex.drawer + 3,
         }}
       >
         <Card
           variant="outlined"
           sx={{
-            padding: "10px",
-            display: "flex",
-
-            flexDirection: "column",
-            alignItems: "center",
-            boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
+            padding: "20px",
+            boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
+            width: "500px",
+            backgroundColor: "#f0f0f0",
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "end", width: "100%" }}>
-            <CloseIcon
-              sx={{ cursor: "pointer", float: "right" }}
-              onClick={() => setEditForm(false)}
-            />
-          </Box>
-          <CardContent sx={{ width: "400px" }}>
-            <Typography
-              sx={{ color: "text.secondary", fontSize: 38 }}
+          <CardContent sx={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "10px",
+              }}
             >
-              Edit Profile
-            </Typography>
-            {inputFieldArray.map((field) => (
-              <Typography
-                variant="h6"
-                component="div"
-                marginBottom="15px"
-                key={field.id}
-              >
+              <Typography sx={{ color: "text.secondary", fontSize: 38 }}>
+                Edit Profile
+              </Typography>
+              <CloseIcon
+                sx={{ cursor: "pointer", fontSize: 38 }}
+                onClick={() => setEditForm(false)}
+              />
+            </Box>
+
+            {["firstname", "lastname"].map((field) => (
+              <Box key={field} sx={{ mb: 2 }}>
+                <InputLabel sx={{ mx: "20px", my: "5px" }}>
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </InputLabel>
                 <TextField
+                  fullWidth
                   required
-                  variant="filled"
-                  type={field.type}
-                  label={field.label}
+                  {...register(field)}
+                  error={!!errors[field]}
+                  helperText={errors[field]?.message}
                   sx={{
                     width: "100%",
+                    "& .MuiOutlinedInput-root": {
+                      backgroundColor: "white",
+                      borderRadius: "48px",
+                      "& fieldset": {
+                        borderRadius: "48px",
+                      },
+                    },
+                    "& .MuiInputBase-input": {
+                      padding: "10px",
+                    },
                   }}
-                  value={inputFields[field.name]}
-                  name={field.name}
-                  onChange={handleChange}
-                  error={!!errors[field.name]}
                 />
-                {errors[field.name] && (
-                  <FormHelperText error>{errors[field.name]}</FormHelperText>
-                )}
-              </Typography>
+              </Box>
             ))}
+
             <FormControlLabel
               control={
                 <Switch
-                  checked={inputFields.account}
-                  onChange={handleChange}
-                  name="account"
+                  {...register("account")}
+                  onChange={(e) => setValue("account", e.target.checked)}
                 />
               }
               label="Public Account"
             />
+
             <CardActions
               sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
             >
-              <Button variant="contained" onClick={handleFormSubmit}>
+              <Button variant="contained" onClick={handleSubmit(onSubmit)}>
                 Save
-              </Button>{" "}
+              </Button>
               <Button
                 variant="contained"
                 color="error"
                 onClick={() => setEditForm(false)}
               >
                 Cancel
-              </Button>{" "}
+              </Button>
             </CardActions>
           </CardContent>
         </Card>

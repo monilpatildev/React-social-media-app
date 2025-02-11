@@ -7,13 +7,13 @@ export const authSlice = createSlice({
   name: "auth",
   initialState: {
     token: token || "",
-    userLoggedIn: !!token, 
+    userLoggedIn: !!token,
   },
   reducers: {
     setAuthToken(state, action) {
       state.token = action.payload;
-      state.userLoggedIn = !!action.payload;   
-      },
+     
+    },
     setUserLoggedIn(state, action) {
       state.userLoggedIn = action.payload;
     },

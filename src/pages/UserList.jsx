@@ -1,73 +1,102 @@
 import Box from "@mui/material/Box";
 import { useGetAllUsersQuery } from "../api/api";
-import { useSearchParams } from "react-router-dom";
 import { Skeleton, Typography } from "@mui/material";
 import UserCard from "@components/UserCard";
 import Navbar from "@components/Navbar";
+import { useEffect, useState } from "react";
 
 export default function UserList() {
-  const [searchParams] = useSearchParams();
-  const pageSize = Number(searchParams.get("pageSize")) || 20;
-  const pageNumber = Number(searchParams.get("pageNumber")) || 1;
-  const { data, isLoading, isError } = useGetAllUsersQuery({
+  const pageSize = 6;
+  const [pageNumber, setPageNumber] = useState(1);
+  const [posts, setPosts] = useState([]);
+
+  const { data, isFetching } = useGetAllUsersQuery({
     pageSize,
     pageNumber,
   });
 
-  if (isError) return <div>Error loading posts</div>;
+  useEffect(() => {
+    if (data?.data?.length) {
+      setPosts((prevPosts) => {
+        const newPosts = data.data.filter(
+          (post) => !prevPosts.some((prevPost) => prevPost._id === post._id),
+        );
+        return [...prevPosts, ...newPosts];
+      });
+    }
+  }, [data]);
 
-  const posts = isLoading
-    ? Array.from(new Array(3))
-    : data?.data?.length
-      ? data.data
-      : [];
+  useEffect(() => {
+    const onScroll = () => {
+      const scrolledToBottom =
+        window.innerHeight + window.scrollY >= document.body.offsetHeight;
+      if (scrolledToBottom && !isFetching) {
+        console.log("Fetching more data...");
+        setPageNumber(pageNumber + 1);
+      }
+    };
 
+    document.addEventListener("scroll", onScroll);
+
+    return function () {
+      document.removeEventListener("scroll", onScroll);
+    };
+  }, [isFetching, pageNumber]);
   return (
     <>
       <Navbar />
-      {posts?.length ? (
-        posts.map((item, index) => (
-          <Box
-            key={index}
+      <Box
+        sx={{
+          backgroundColor: "#f0f0f0",
+          paddingTop: "30px",
+          minHeight: "825px",
+        }}
+      >
+        {posts?.length ? (
+          posts.map((item, index) => (
+            <Box
+              key={index}
+              sx={{
+                marginTop: "30px",
+                mx: 50,
+                backgroundColor: "#f0f0f0",
+              }}
+            >
+              {item ? (
+                <UserCard item={item} data={data} />
+              ) : (
+                <>
+                  <Skeleton
+                    variant="rectangular"
+                    height={130}
+                    sx={{
+                      pr: 2,
+                      margin: "5px 10px",
+                      display: "flex",
+                      padding: "10px",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  />
+                </>
+              )}
+            </Box>
+          ))
+        ) : (
+          <Typography
+            gutterBottom
             sx={{
-              margin: "25px 400px",
-              my: 5,
+              color: "text.secondary",
+              margin: "100px",
+              textAlign: "center",
+              fontSize: 38,
+              width: "100%",
             }}
           >
-            {item ? (
-              <UserCard item={item} data={data} />
-            ) : (
-              <>
-                <Skeleton
-                  variant="rectangular"
-                  height={130}
-                  sx={{
-                    pr: 2,
-                    margin: "5px 10px",
-                    display: "flex",
-                    padding: "10px",
-                    alignItems: "center",
-                    gap: "10px",
-                  }}
-                />
-              </>
-            )}
-          </Box>
-        ))
-      ) : (
-        <Typography
-          gutterBottom
-          sx={{
-            color: "text.secondary",
-            margin: "100px",
-            textAlign: "center",
-            fontSize: 38,
-            width: "100%",
-          }}
-        >
-          No post available
-        </Typography>
-      )}
+            No user available
+          </Typography>
+        )}
+      </Box>
     </>
   );
 }
