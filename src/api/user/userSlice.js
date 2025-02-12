@@ -1,20 +1,23 @@
+
 import { createSlice } from "@reduxjs/toolkit";
 
-export const userSlice = createSlice({
+const initialState = {
+  loggedUserData: null,
+  newPost: null,
+};
+
+const userSlice = createSlice({
   name: "user",
-  initialState: {
-    loggedUserData: {},
-    postCreated : false
-  },
+  initialState,
   reducers: {
-    setLoggedUserData(state, action) {
+    setLoggedUserData: (state, action) => {
       state.loggedUserData = action.payload;
     },
-    setPostCreated (state,action){
-      state.postCreated = action.payload;
-
-    }
+    setNewPost: (state, action) => {
+      state.newPost = action.payload;
+    },
   },
 });
-export const { setLoggedUserData, setPostCreated } = userSlice.actions;
+
+export const { setLoggedUserData, setNewPost } = userSlice.actions;
 export default userSlice.reducer;

@@ -20,6 +20,8 @@ import { useCreatePostMutation } from "../api/api";
 import CloseIcon from "@mui/icons-material/Close";
 import { ToastContainer, toast } from "react-toastify";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setNewPost } from "../api/user/userSlice";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -50,6 +52,7 @@ const validationSchema = Yup.object({
 });
 
 const CreatePost = ({ setShowCreatePost }) => {
+  const dispatch = useDispatch();
   const {
     handleSubmit,
     control,
@@ -77,8 +80,9 @@ const CreatePost = ({ setShowCreatePost }) => {
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
-      await createPost(formData).unwrap();
+      const response = await createPost(formData).unwrap();
       toast.success("Post created successfully!", { autoClose: 800 });
+      dispatch(setNewPost(response.data));
       setShowCreatePost(false);
     } catch (error) {
       console.log(error);
@@ -181,10 +185,9 @@ const CreatePost = ({ setShowCreatePost }) => {
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
                         borderRadius: "14px",
-                       
+
                         "& fieldset": {
                           borderRadius: "14px",
-                          
                         },
                       },
                       "& .MuiInputBase-input": {},

@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import Box from "@mui/material/Box";
 import { useGetAllUsersQuery } from "../api/api";
 import { Skeleton, Typography } from "@mui/material";
