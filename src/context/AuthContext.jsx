@@ -1,4 +1,4 @@
-// authContext.jsx
+/* eslint-disable react/prop-types */
 import Cookies from "js-cookie";
 import { useEffect, useState, createContext } from "react";
 

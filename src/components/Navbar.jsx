@@ -2,8 +2,9 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import UserProfileButton from "@components/UserProfileButton";
 import { Link } from "react-router-dom";
-import { AppBar, TextField } from "@mui/material";
+import { AppBar, Box, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
   return (
@@ -16,8 +17,25 @@ export default function Navbar() {
           padding: "20px",
         }}
       >
-        <Typography variant="h4" component="div" sx={{ color: "black" }}>
-          <Link to="/">SocialGram</Link>
+        <Typography
+          variant="h4"
+          component="div"
+          sx={{ color: "black", maxWidth: "180px" }}
+        >
+          <Link to="/">
+            <Box
+              component="img"
+              src={logo}
+              alt="logo"
+              sx={{
+                width: "200px",
+                height: "50px",
+                objectFit: "contain",
+                m:0,
+                p:0
+              }}
+            />
+          </Link>
         </Typography>
         <TextField
           required
@@ -34,7 +52,7 @@ export default function Navbar() {
             "& .MuiInputBase-input": {
               padding: "8px",
             },
-            width: "50%",
+            width: "40%",
           }}
         >
           <SearchIcon />

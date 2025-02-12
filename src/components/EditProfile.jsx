@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -27,6 +28,11 @@ const validationSchema = Yup.object({
     .required("Enter last name")
     .min(4, "Last name must be at least 4 characters"),
 });
+
+const inputFieldArray = [
+  { name: "firstname", label: "First Name *", type: "text" },
+  { name: "lastname", label: "Last Name *", type: "text" },
+];
 
 const EditProfile = ({ setEditForm }) => {
   const userData = useSelector((state) => state.user.loggedUserData);
@@ -128,17 +134,18 @@ const EditProfile = ({ setEditForm }) => {
               />
             </Box>
 
-            {["firstname", "lastname"].map((field) => (
-              <Box key={field} sx={{ mb: 2 }}>
+            {inputFieldArray.map((field) => (
+              <Box key={field.name} sx={{ mb: 2 }}>
                 <InputLabel sx={{ mx: "20px", my: "5px" }}>
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                  {field.label}
                 </InputLabel>
                 <TextField
                   fullWidth
                   required
-                  {...register(field)}
-                  error={!!errors[field]}
-                  helperText={errors[field]?.message}
+                  {...register(field.name)}
+                  type={field.type}
+                  error={!!errors[field.name]}
+                  helperText={errors[field.name]?.message}
                   sx={{
                     width: "100%",
                     "& .MuiOutlinedInput-root": {

@@ -12,24 +12,24 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
 import { useSignUpUserMutation } from "../api/api";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/logo.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 const validationSchema = Yup.object({
   firstname: Yup.string()
-    .min(4, "First name must be at least 4 characters")
-    .required("Enter first name"),
+    .required("Enter first name")
+    .min(4, "First name must be at least 4 characters"),
   lastname: Yup.string()
-    .min(4, "Last name must be at least 4 characters")
-    .required("Enter last name"),
+    .required("Enter last name")
+    .min(4, "Last name must be at least 4 characters"),
   username: Yup.string()
-    .min(6, "Username must be at least 6 characters")
-    .required("Enter username"),
-  email: Yup.string().email("Enter valid email").required("Enter email"),
+    .required("Enter username")
+    .min(6, "Username must be at least 6 characters"),
+  email: Yup.string().required("Enter email").email("Enter valid email"),
   password: Yup.string()
-    .min(8, "Password should be more than 8 characters")
-    .required("Enter password"),
+    .required("Enter password")
+    .min(8, "Password should be more than 8 characters"),
   confirmpassword: Yup.string()
     .required("Enter confirm password")
     .oneOf(
@@ -38,6 +38,18 @@ const validationSchema = Yup.object({
     ),
 });
 
+const inputFieldArray = [
+  { name: "firstname", label: "First Name *", type: "text" },
+  { name: "lastname", label: "Last Name *", type: "text" },
+  { name: "username", label: "Username *", type: "text" },
+  { name: "email", label: "Email *", type: "email" },
+  { name: "password", label: "Password *", type: "password" },
+  {
+    name: "confirmpassword",
+    label: "Confirm Password *",
+    type: "password",
+  },
+];
 export default function SignUp() {
   const navigate = useNavigate();
   const [signUpUser] = useSignUpUserMutation();
@@ -68,6 +80,8 @@ export default function SignUp() {
       console.log("Sign-up failed", err);
     }
   };
+
+  console.log();
 
   return (
     <>
@@ -100,15 +114,7 @@ export default function SignUp() {
             </Typography>
 
             <form onSubmit={handleSubmit(onSubmit)}>
-              {[
-                { name: "firstname", label: "First Name", type: "text" },
-                { name: "lastname", label: "Last Name", type: "text" },
-                { name: "username", label: "Username", type: "text" },
-                { name: "email", label: "Email", type: "email" },
-                { name: "password", label: "Password", type: "password" },
-                {name: "confirmpassword",label: "Confirm Password",type: "password",
-                },
-              ].map((field) => (
+              {inputFieldArray.map((field) => (
                 <Box key={field.name} sx={{ mb: 2 }}>
                   <InputLabel shrink sx={{ mx: "20px" }}>
                     {field.label}
@@ -180,7 +186,7 @@ export default function SignUp() {
               sx={{
                 width: { xs: 250, md: 350 },
                 height: { xs: 250, md: 350 },
-                mixBlendMode: "multiply",
+                objectFit:"contain"
               }}
             />
           </CardContent>

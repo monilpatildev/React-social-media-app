@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import EditProfile from "@components/EditProfile";
 import Navbar from "@components/Navbar";
 import {
@@ -14,7 +15,7 @@ import profileBg from "../assets/profile_bg.jpg";
 import DeleteUserForm from "@components/DeleteUserForm";
 import { setLoggedUserData } from "../api/user/userSlice";
 import { useGetLoginUserQuery, useGetUserQuery } from "../api/api";
-import { useParams, useLocation } from "react-router";
+import { useParams, useLocation, useNavigate } from "react-router";
 
 const UserProfile = () => {
   const userData = useSelector((state) => state.user.loggedUserData);
@@ -23,6 +24,7 @@ const UserProfile = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { data: loggedUser, isLoading: loggedUserLoading } =
     useGetLoginUserQuery();
@@ -31,10 +33,19 @@ const UserProfile = () => {
   });
 
   useEffect(() => {
+    if (
+      location.pathname !== "/profile" &&
+      (!id || location.pathname === "/user" || id.length !== 24)
+    ) {
+      navigate("/");
+    }
+
     if (loggedUser?.data) {
       dispatch(setLoggedUserData(loggedUser.data));
+    } else {
+      dispatch(setLoggedUserData(null));
     }
-  }, [dispatch, loggedUser]);
+  }, [dispatch, id, location.pathname, loggedUser]);
 
   const isProfilePage = location.pathname === "/profile";
   const profileData = isProfilePage ? userData : user;
@@ -83,7 +94,7 @@ const UserProfile = () => {
               }}
             />
           </Box>
-          <Box sx={{ width: "100%" }}>
+        
             <CardContent>
               <Typography sx={{ color: "text.secondary", fontSize: 32 }}>
                 {isProfilePage ? "Your Profile" : "User Profile"}
@@ -183,7 +194,7 @@ const UserProfile = () => {
                         fontSize: 24,
                       }}
                     >
-                      {profileData?.following?.length || 0}
+                      {profileData?.totalFollowing}
                     </Typography>
                     <Typography
                       gutterBottom
@@ -193,7 +204,7 @@ const UserProfile = () => {
                         fontSize: 24,
                       }}
                     >
-                      {profileData?.follower?.length || 0}
+                      {profileData?.totalFollower}
                     </Typography>
                   </Box>
 
@@ -253,7 +264,7 @@ const UserProfile = () => {
                 </Typography>
               </CardContent>
             )}
-          </Box>
+         
         </Box>
       ) : (
         <Box

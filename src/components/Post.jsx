@@ -5,7 +5,7 @@ import userImage from "../assets/user.svg";
 import { useNavigate } from "react-router";
 
 const Post = ({ item }) => {
-  const { data: postImage, } = useGetImageQuery(item.media_id);
+  const { data: postImage } = useGetImageQuery(item.media_id);
   const { data: user, isLoading: userLoading } = useGetUserQuery(item.userId);
 
   const navigate = useNavigate();

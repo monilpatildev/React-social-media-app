@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -9,14 +9,13 @@ import TextField from "@mui/material/TextField";
 import { Button, InputLabel } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
-import logo from "../assets/logo.jpg";
+import logo from "../assets/logo.png";
 import Cookies from "js-cookie";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setUserLoggedIn } from "../api/auth/authSlice";
 import { useSignInUserMutation } from "../api/api";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Enter a valid email").required("Enter email"),
@@ -25,11 +24,14 @@ const validationSchema = Yup.object({
     .required("Enter password"),
 });
 
+const inputFieldArray = [
+  { name: "email", label: "Email", type: "email" },
+  { name: "password", label: "Password", type: "password" },
+];
+
 export default function SignIn() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [signInUser] = useSignInUserMutation();
-  const userLoggedIn = useSelector((state) => state.auth.userLoggedIn);
 
   const {
     register,
@@ -38,12 +40,6 @@ export default function SignIn() {
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
-
-  useEffect(() => {
-    if (userLoggedIn) {
-      navigate("/");
-    }
-  }, [userLoggedIn, navigate]);
 
   const onSubmit = async (data) => {
     try {
@@ -57,7 +53,6 @@ export default function SignIn() {
           onClose: () => {
             Cookies.set("token", response.data.data.token, { expires: 7 });
             dispatch(setUserLoggedIn(true));
-            navigate("/");
           },
         });
       }
@@ -96,10 +91,7 @@ export default function SignIn() {
               Sign In
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
-              {[
-                { name: "email", label: "Email", type: "email" },
-                { name: "password", label: "Password", type: "password" },
-              ].map((field) => (
+              {inputFieldArray.map((field) => (
                 <Box key={field.name} sx={{ mb: 2 }}>
                   <InputLabel shrink sx={{ mx: "20px" }}>
                     {field.label}
@@ -171,7 +163,7 @@ export default function SignIn() {
               sx={{
                 width: { xs: 250, md: 350 },
                 height: { xs: 250, md: 350 },
-                mixBlendMode: "multiply",
+               objectFit:"contain"
               }}
             />
           </CardContent>

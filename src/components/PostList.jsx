@@ -1,49 +1,15 @@
-import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
-import { useGetPostQuery } from "../api/api";
 import { Skeleton, Typography } from "@mui/material";
 import Post from "./Post";
+import useInfiniteScroll from "@utils/useInfiniteScroll";
+import { useGetPostQuery } from "../api/api";
 
 export default function PostList() {
-  const pageSize = 3;
-  const [pageNumber, setPageNumber] = useState(1);
-  const [posts, setPosts] = useState([]);
-
-  const { data, isLoading, isFetching } = useGetPostQuery({
+  const pageSize = 2;
+  const { dataList: posts, isLoading } = useInfiniteScroll(
+    useGetPostQuery,
     pageSize,
-    pageNumber,
-  });
-
-  useEffect(() => {
-    if (data?.data?.length) {
-      setPosts((prevPosts) => {
-        const newPosts = data.data.filter(
-          (post) => !prevPosts.some((prevPost) => prevPost._id === post._id),
-        );
-
-        if (pageNumber === 1) {
-          return [...newPosts, ...prevPosts];
-        } else {
-          return [...prevPosts, ...newPosts];
-        }
-      });
-    }
-  }, [data, pageNumber]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 100 &&
-        !isFetching
-      ) {
-        setPageNumber((prevPage) => prevPage + 1);
-      }
-    };
-
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isFetching]);
+  );
 
   return (
     <>

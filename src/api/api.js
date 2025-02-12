@@ -34,7 +34,6 @@ export const api = createApi({
       onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          console.log("signInUser", data.data.token);
           dispatch(setAuthToken(data.data.token));
         } catch (error) {
           dispatch(setAuthToken(null));
@@ -62,11 +61,12 @@ export const api = createApi({
       query: ({ pageSize, pageNumber }) => ({
         url: `posts/get-feed-post?pageSize=${pageSize}&pageNumber=${pageNumber}`,
       }),
-   
+
       forceRefetch({ currentArg, previousArg }) {
         return currentArg !== previousArg;
       },
-      providesTags: ["GetPost"],
+      providesTags: (result, error, { pageNumber }) =>
+        result ? [{ type: "GetPost", id: pageNumber }] : ["GetPost"],
     }),
 
     getAllUsers: builder.query({
@@ -79,7 +79,6 @@ export const api = createApi({
       },
       providesTags: (result, error, { pageNumber }) =>
         result ? [{ type: "GetAllUsers", id: pageNumber }] : ["GetAllUsers"],
-      invalidatesTags: ["GetAllUsers"],
     }),
 
     createPost: builder.mutation({
@@ -100,7 +99,7 @@ export const api = createApi({
       invalidatesTags: ["GetLoginUser"],
     }),
 
-    deleteUser: builder.query({
+    deleteUser: builder.mutation({
       query: () => ({
         url: "/users/delete-users",
         method: "DELETE",
@@ -114,7 +113,6 @@ export const api = createApi({
       transformResponse(res) {
         return res?.data;
       },
-      providesTags: ["GetPost"],
     }),
 
     getImage: builder.query({
@@ -137,7 +135,7 @@ export const {
   useGetPostQuery,
   useCreatePostMutation,
   useEditProfileMutation,
-  useDeleteUserQuery,
+  useDeleteUserMutation,
   useGetImageQuery,
   useGetUserQuery,
   useGetAllUsersQuery,

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Avatar, Box, Button, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Stack, Typography } from "@mui/material";
 import userImage from "../assets/user.svg";
 
 const UserCard = ({ item }) => {
@@ -77,16 +77,7 @@ const UserCard = ({ item }) => {
           </Typography>
         </Box>
       </Box>
-      {/* <Box
-        sx={{
-          pr: 2,
-          margin: "10px 25px",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Button variant="contained">Follow</Button>
-      </Box> */}
+     
     </Box>
   );
 };

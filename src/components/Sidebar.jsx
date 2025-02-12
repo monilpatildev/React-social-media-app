@@ -15,9 +15,9 @@ import { useNavigate } from "react-router-dom";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import { createPortal } from "react-dom";
 import CreatePost from "./CreatePost";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function ClippedDrawer() {
+export default function Sidebar() {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const navigate = useNavigate();
 
@@ -29,13 +29,22 @@ export default function ClippedDrawer() {
     navigate("/users");
   };
 
+  useEffect(()=>{
+    if(showCreatePost){
+      document.body.style.overflow = "hidden"
+    }else{
+      document.body.style.overflow = "auto";
+
+    }
+  },[showCreatePost])
+
   return (
     <Box
       sx={{
         display: "flex",
         backgroundColor: "#f0f0f0",
         height: "100%",
-        minHeight:"905px"
+        minHeight: "905px",
       }}
     >
       <CssBaseline />
@@ -87,7 +96,7 @@ export default function ClippedDrawer() {
             </ListItemButton>
           </List>
         </Box>
-      </Drawer>{" "}
+      </Drawer>
       <Box
         component="div"
         sx={{ flexGrow: 1, width: "100%", height: "100%", marginTop: "100px" }}

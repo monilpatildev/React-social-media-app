@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -16,7 +18,6 @@ import {
 } from "@mui/material";
 import { useCreatePostMutation } from "../api/api";
 import CloseIcon from "@mui/icons-material/Close";
-import { useNavigate } from "react-router";
 import { ToastContainer, toast } from "react-toastify";
 import { useState } from "react";
 
@@ -34,16 +35,16 @@ const VisuallyHiddenInput = styled("input")`
 
 const validationSchema = Yup.object({
   title: Yup.string()
-    .min(4, "Title must be at least 4 characters")
-    .required("Enter Title"),
+    .required("Enter Title")
+    .min(4, "Title must be at least 4 characters"),
   description: Yup.string()
-    .min(20, "Description must be at least 20 characters")
-    .required("Enter Description"),
+    .required("Enter Description")
+    .min(20, "Description must be at least 20 characters"),
   image: Yup.mixed()
     .required("Select image")
     .test(
       "fileType",
-      "Unsupported file format. Allowed: JPEG, PNG",
+      "Unsupported file format Allowed: JPEG, PNG",
       (value) => value && ["image/jpeg", "image/png"].includes(value.type),
     ),
 });
@@ -64,7 +65,6 @@ const CreatePost = ({ setShowCreatePost }) => {
     },
   });
   const [createPost, { isLoading }] = useCreatePostMutation();
-  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
 
   const onSubmit = async (data) => {
@@ -79,12 +79,10 @@ const CreatePost = ({ setShowCreatePost }) => {
       }
       await createPost(formData).unwrap();
       toast.success("Post created successfully!", { autoClose: 800 });
-      navigate("/");
       setShowCreatePost(false);
     } catch (error) {
       console.log(error);
-
-      toast.error(`Failed to create post.${error}`);
+      toast.error("Failed to create post.");
     }
   };
 
@@ -169,7 +167,6 @@ const CreatePost = ({ setShowCreatePost }) => {
                   />
                 )}
               />
-
               <InputLabel sx={{ m: "10px" }}>Description *</InputLabel>
               <Controller
                 name="description"
@@ -177,15 +174,17 @@ const CreatePost = ({ setShowCreatePost }) => {
                 render={({ field }) => (
                   <TextField
                     multiline
-                    minRows={4}
+                    rows={5}
                     placeholder="Enter Description"
                     sx={{
                       width: "100%",
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
                         borderRadius: "14px",
+                       
                         "& fieldset": {
                           borderRadius: "14px",
+                          
                         },
                       },
                       "& .MuiInputBase-input": {},
@@ -245,13 +244,8 @@ const CreatePost = ({ setShowCreatePost }) => {
                           />
                         </>
                       )}
-                    />{" "}
+                    />
                   </Button>
-                  {errors.image && (
-                    <FormHelperText error>
-                      {errors.image.message}
-                    </FormHelperText>
-                  )}
                 </Box>
                 {imagePreview ? (
                   <img
@@ -270,8 +264,8 @@ const CreatePost = ({ setShowCreatePost }) => {
                       marginBottom: "10px",
                       height: "150px",
                       width: "100%",
-                      border: "2px solid grey",
-                      color: "#9c9b9a",
+                      border: `2px solid ${errors.image && !imagePreview ? "red" : "grey"} `,
+                      color: `${errors.image && !imagePreview ? "red" : "#9c9b9a"} `,
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
@@ -282,16 +276,25 @@ const CreatePost = ({ setShowCreatePost }) => {
                     Preview
                   </Box>
                 )}
+              </Box>{" "}
+              {errors.image && !imagePreview && (
+                <FormHelperText
+                  sx={{ ml: "15px", fontSize: 14, mb: "10px" }}
+                  error
+                >
+                  {errors.image.message}
+                </FormHelperText>
+              )}
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Controller
+                  name="isPrivate"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch {...field} checked={!!field.value} />
+                  )}
+                />
+                <Typography>Private Post</Typography>
               </Box>
-              <Controller
-                name="isPrivate"
-                control={control}
-                render={({ field }) => (
-                  <Switch {...field} checked={!!field.value} />
-                )}
-              />
-              <Typography>Private Post</Typography>
-
               <CardActions
                 sx={{ display: "flex", justifyContent: "right", gap: "10px" }}
               >
