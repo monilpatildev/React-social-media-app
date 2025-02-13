@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { Avatar, Box, Stack, Typography } from "@mui/material";
-import userImage from "../assets/user.svg";
+import { Box, Typography } from "@mui/material";
+import UserProfileLogo from "./UserProfileLogo";
 
 const UserCard = ({ item }) => {
   return (
@@ -20,30 +20,18 @@ const UserCard = ({ item }) => {
       <Box
         sx={{
           display: "flex",
-          alignItems:"center"
+          alignItems: "center",
         }}
       >
-        <Stack direction="row" spacing={2} sx={{ margin: "5px 30px" }}>
-          <Avatar
-            alt="Travis Howard"
-            src={userImage}
-            id="basic-button"
-            aria-controls={open ? "basic-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            sx={{
-              cursor: "pointer",
-              width: "60px",
-              height: "60px",
-              border: "1px solid grey",
-              padding: "5px",
-            }}
-          />
-        </Stack>
+      <Box sx={{ml:"30px"}}>
+
+        <UserProfileLogo user={item}/>
+      </Box>
+
         <Box
           sx={{
             pr: 2,
-            margin: "10px 25px",
+            margin: "10px 55px",
             display: "flex",
             flexDirection: "column",
           }}
@@ -77,7 +65,6 @@ const UserCard = ({ item }) => {
           </Typography>
         </Box>
       </Box>
-     
     </Box>
   );
 };

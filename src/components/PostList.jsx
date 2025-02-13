@@ -1,15 +1,16 @@
 import Box from "@mui/material/Box";
-import { Skeleton, Typography } from "@mui/material";
+import {  Skeleton, Typography } from "@mui/material";
 import Post from "./Post";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
 import { useGetPostQuery } from "../api/api";
 
 export default function PostList() {
   const pageSize = 2;
-  const { dataList: posts, isLoading } = useInfiniteScroll(
-    useGetPostQuery,
-    pageSize,
-  );
+  const {
+    dataList: posts,
+    isLoading,
+
+  } = useInfiniteScroll(useGetPostQuery, pageSize);
 
   return (
     <>
@@ -47,6 +48,7 @@ export default function PostList() {
           />
         </Box>
       )}
+      
     </>
   );
 }

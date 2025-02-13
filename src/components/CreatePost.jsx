@@ -38,6 +38,7 @@ const VisuallyHiddenInput = styled("input")`
 const validationSchema = Yup.object({
   title: Yup.string()
     .required("Enter Title")
+    .max(80, "Title not be more than 80 characters")
     .min(4, "Title must be at least 4 characters"),
   description: Yup.string()
     .required("Enter Description")
@@ -303,7 +304,8 @@ const CreatePost = ({ setShowCreatePost }) => {
               >
                 <Button
                   variant="contained"
-                  color="error"
+                  color="default"
+                  sx={{color:"grey",boxShadow:"none"}}
                   onClick={() => setShowCreatePost(false)}
                 >
                   Cancel

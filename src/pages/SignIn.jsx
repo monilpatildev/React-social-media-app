@@ -36,7 +36,7 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors ,isSubmitting},
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
@@ -44,7 +44,6 @@ export default function SignIn() {
   const onSubmit = async (data) => {
     try {
       const response = await signInUser(data);
-
       if (response.error) {
         toast.error(response.error.data.message);
       } else {
@@ -119,6 +118,8 @@ export default function SignIn() {
                 fullWidth
                 type="submit"
                 variant="contained"
+                disabled={isSubmitting}
+                loading={isSubmitting}
                 sx={{
                   py: 1.5,
                   mt: 2,
@@ -163,7 +164,7 @@ export default function SignIn() {
               sx={{
                 width: { xs: 250, md: 350 },
                 height: { xs: 250, md: 350 },
-               objectFit:"contain"
+                objectFit: "contain",
               }}
             />
           </CardContent>

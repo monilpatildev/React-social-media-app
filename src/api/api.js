@@ -5,6 +5,7 @@ import { setLoggedUserData } from "../api/user/userSlice";
 
 export const api = createApi({
   reducerPath: "api",
+  refetchOnFocus: true,
   baseQuery: fetchBaseQuery({
     baseUrl: "http://192.168.1.172:4004/api/v1/",
     prepareHeaders: (headers, { getState }) => {
@@ -41,7 +42,7 @@ export const api = createApi({
       },
     }),
 
-    getLoginUser: builder.query({
+    getLoggedUser: builder.query({
       query: () => ({
         url: "/users/get-user-profile",
       }),
@@ -54,7 +55,6 @@ export const api = createApi({
           dispatch(setLoggedUserData(null));
         }
       },
-      invalidatesTags: ["GetLoginUser"],
     }),
 
     getPost: builder.query({
@@ -125,13 +125,19 @@ export const api = createApi({
         },
       }),
     }),
+
+    getSearchPost: builder.query({
+      query: (search) => ({
+        url: `posts/get-feed-post?search=${search}`,
+      }),
+    }),
   }),
 });
 
 export const {
   useSignUpUserMutation,
   useSignInUserMutation,
-  useGetLoginUserQuery,
+  useGetLoggedUserQuery,
   useGetPostQuery,
   useCreatePostMutation,
   useEditProfileMutation,
@@ -139,4 +145,5 @@ export const {
   useGetImageQuery,
   useGetUserQuery,
   useGetAllUsersQuery,
+  useGetSearchPostQuery
 } = api;

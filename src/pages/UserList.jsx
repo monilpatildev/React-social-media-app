@@ -7,7 +7,7 @@ import Navbar from "@components/Navbar";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
 
 export default function UserList() {
-  const pageSize = 6;
+  const pageSize = 8;
   const { dataList: usersArray, data } = useInfiniteScroll(
     useGetAllUsersQuery,
     pageSize,
@@ -60,7 +60,7 @@ export default function UserList() {
             gutterBottom
             sx={{
               color: "text.secondary",
-              margin: "100px",
+             mt:"100px",
               textAlign: "center",
               fontSize: 38,
               width: "100%",

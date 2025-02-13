@@ -5,14 +5,17 @@ import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 import { toast, ToastContainer } from "react-toastify";
-import userImage from "../assets/user.svg";
+// import userImage from "../assets/user.svg";
 import { setLoggedUserData } from "../api/user/userSlice";
 import { useState } from "react";
+import { api } from "../api/api";
+import UserProfileLogo from "./UserProfileLogo";
 
 export default function UserProfileButton() {
+  const userData = useSelector((state) => state.user.loggedUserData);
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,29 +33,32 @@ export default function UserProfileButton() {
   };
 
   const handleLogout = () => {
-    Cookies.remove("token");
+    
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
-        dispatch(setAuthToken(null));
-        dispatch(setUserLoggedIn(false));
         dispatch(setLoggedUserData(null));
+        dispatch(setAuthToken(null));
+        Cookies.remove("token");
+        dispatch(setUserLoggedIn(false));
+        dispatch(api.util.resetApiState());
       },
     });
   };
   return (
     <>
-      <Stack direction="row" spacing={2} sx={{ minWidth: "180px" ,mr:"20px"}} >
+      <Stack direction="row" spacing={2} sx={{ mx: "20px" }}>
         <Avatar
           alt="Travis Howard"
-          src={userImage}
           id="basic-button"
           aria-controls={open ? "basic-menu" : undefined}
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
           onClick={handleClick}
-          sx={{ cursor: "pointer" ,left:"90%"}}
-        />
+          sx={{ cursor: "pointer", width:"45px" ,height:"50px",backgroundColor:"white"}}
+        >
+          <UserProfileLogo user={userData}/>
+        </Avatar>
       </Stack>
 
       <Menu
@@ -76,7 +82,7 @@ export default function UserProfileButton() {
         >
           Logout
         </MenuItem>
-      <ToastContainer />
+        <ToastContainer />
       </Menu>
     </>
   );
