@@ -1,8 +1,30 @@
 /* eslint-disable react/prop-types */
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import UserProfileLogo from "./UserProfileLogo";
+import { useFollowUserMutation, useUnfollowUserMutation } from "../api/api";
+import { useSelector } from "react-redux";
 
 const UserCard = ({ item }) => {
+  const userData = useSelector((state) => state.user.loggedUserData);
+  // const dispatch = useDispatch();
+  const isFollowing = userData.following.find(
+    (following) => following.followingId === item._id,
+  )
+    ? true
+    : false;
+
+  const [followUser, { isLoading }] = useFollowUserMutation();
+  const [unfollowUser,  { isLoading: isUnfollowing }] =
+    useUnfollowUserMutation();
+
+  const handleFollowUser = () => {
+    if (!isFollowing) {
+      followUser({ id: item._id });
+    } else {
+      unfollowUser({ id: item._id });
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -23,10 +45,9 @@ const UserCard = ({ item }) => {
           alignItems: "center",
         }}
       >
-      <Box sx={{ml:"30px"}}>
-
-        <UserProfileLogo user={item}/>
-      </Box>
+        <Box sx={{ ml: "30px" }}>
+          <UserProfileLogo user={item} />
+        </Box>
 
         <Box
           sx={{
@@ -64,6 +85,17 @@ const UserCard = ({ item }) => {
             {item.email}
           </Typography>
         </Box>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", width: "200px " }}>
+        <Button
+          variant="contained"
+          color={isFollowing ? "default" : "primary"}
+          onClick={handleFollowUser}
+          loading={isUnfollowing || isLoading}
+          sx={{width:"100px"}}
+        >
+          {isFollowing ? "Unfollow" : "Follow"}
+        </Button>
       </Box>
     </Box>
   );

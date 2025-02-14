@@ -16,23 +16,13 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import { createPortal } from "react-dom";
 import CreatePost from "./CreatePost";
 import { useEffect, useState } from "react";
-import { setLoggedUserData } from "../api/user/userSlice";
-import { useDispatch } from "react-redux";
-import { useGetLoggedUserQuery } from "../api/api";
+import { useSelector } from "react-redux";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 export default function Sidebar() {
-  const { data: loggedUser, isLoading } = useGetLoggedUserQuery();
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const userIsLoading = useSelector((state) => state.user.userIsLoading);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (loggedUser?.data) {
-      dispatch(setLoggedUserData(loggedUser.data));
-    } else {
-      dispatch(setLoggedUserData(null));
-    }
-  }, [dispatch, loggedUser]);
 
   useEffect(() => {
     if (showCreatePost) {
@@ -49,10 +39,12 @@ export default function Sidebar() {
   const handleVisitAllUsers = () => {
     navigate("/users");
   };
-
+  const handleActivity = () => {
+    navigate("/activities");
+  };
   return (
     <>
-      {!isLoading ? (
+      {!userIsLoading ? (
         <Box
           sx={{
             display: "flex",
@@ -110,6 +102,16 @@ export default function Sidebar() {
                     </Tooltip>
                   </ListItemIcon>
                   <ListItemText primary={"Create Post"} />
+                </ListItemButton>
+                <ListItemButton onClick={handleActivity}>
+                  <ListItemIcon>
+                    <Tooltip title="Follow Requests">
+                      <FavoriteIcon
+                        sx={{ mr: "30px", scale: "1.5", cursor: "pointer" }}
+                      />
+                    </Tooltip>
+                  </ListItemIcon>
+                  <ListItemText primary={"Follow Requests"} />
                 </ListItemButton>
               </List>
             </Box>

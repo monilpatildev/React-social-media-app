@@ -1,18 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setNewPost } from "../api/user/userSlice";
+import { setNewPost } from "../api/post/postSlice";
 
 export default function useInfiniteScroll(queryFunction, pageSize) {
   const [pageNumber, setPageNumber] = useState(1);
   const [dataList, setDataList] = useState([]);
 
-  const { data, isFetching, isLoading } = queryFunction({
-    pageSize,
-    pageNumber,
-  });
+  const searchText = useSelector((state) => state.post.searchText);
+  const { data, isFetching, isLoading } = queryFunction(
+    {
+      pageSize,
+      pageNumber,
+    },
+    {
+      skip: searchText,
+    },
+  );
   const dispatch = useDispatch();
 
-  const newPost = useSelector((state) => state.user.newPost);
+  const newPost = useSelector((state) => state.post.newPost);
   const totalPages = Math.ceil(data?.total / pageSize);
 
   const throttleTimeout = useRef(null);
@@ -30,27 +36,32 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
     }
   }, [newPost, dispatch]);
   useEffect(() => {
-    const onScroll = () => {
-      if (throttleTimeout.current) return;
+    if (!searchText) {
+      const onScroll = () => {
+        if (throttleTimeout.current) return;
 
-      throttleTimeout.current = setTimeout(() => {
-        throttleTimeout.current = null;
-        const scrolledToBottom =
-          window.innerHeight + window.scrollY + 600 >=
-          document.body.offsetHeight;
+        throttleTimeout.current = setTimeout(() => {
+          throttleTimeout.current = null;
+          const scrolledToBottom =
+            window.innerHeight + window.scrollY + 600 >=
+            document.body.offsetHeight;
 
-        if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
-          console.log("Fetching more data...");
-          setPageNumber((prev) => prev + 1);
-        }
-      }, 200);
-    };
+          if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
+            console.log("Fetching more data...");
+            setPageNumber((prev) => prev + 1);
+          }
+        }, 200);
+      };
 
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+      window.addEventListener("scroll", onScroll);
+      return () => window.removeEventListener("scroll", onScroll);
+    }
   }, [isFetching, pageNumber, totalPages]);
 
   useEffect(() => {
+    if (!searchText) {
+      setPageNumber((prev)=> prev)
+    }
     if (data?.data?.length) {
       setDataList((prevPosts) => {
         const newPosts = data.data.filter(

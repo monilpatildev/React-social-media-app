@@ -8,11 +8,13 @@ import SignIn from "@pages/SignIn";
 import SignUp from "@pages/SignUp";
 import UserProfile from "@pages/UserProfile.jsx";
 import UserList from "@pages/UserList.jsx";
+import FollowRequests from "@pages/FollowRequests.jsx";
 
 function App() {
   const dispatch = useDispatch();
   const { cookie } = useContext(AuthContext);
   const userLoggedIn = useSelector((state) => state.auth.userLoggedIn);
+
 
   useLayoutEffect(() => {
     if (cookie) {
@@ -31,6 +33,7 @@ function App() {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/user/:id" element={<UserProfile />} />
             <Route path="/users" element={<UserList />} />
+            <Route path="/activities" element={<FollowRequests />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (

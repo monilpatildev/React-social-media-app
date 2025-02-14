@@ -63,7 +63,9 @@ const Post = ({ item }) => {
           backgroundColor: "white",
         }}
       >
-        <UserProfileLogo user={user}/>
+        <Box sx={{ mt: "15px" }} onClick={handleUserProfile}>
+          <UserProfileLogo user={user} />
+        </Box>
         <Box
           sx={{
             pr: 2,

@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   loggedUserData: null,
-  newPost: null,
+  userIsLoading: false
+
 };
 
 const userSlice = createSlice({
@@ -13,11 +14,11 @@ const userSlice = createSlice({
     setLoggedUserData: (state, action) => {
       state.loggedUserData = action.payload;
     },
-    setNewPost: (state, action) => {
-      state.newPost = action.payload;
+    setUserIsLoading: (state, action) => {
+      state.userIsLoading = action.payload;
     },
   },
 });
 
-export const { setLoggedUserData, setNewPost } = userSlice.actions;
+export const { setLoggedUserData, setUserIsLoading } = userSlice.actions;
 export default userSlice.reducer;

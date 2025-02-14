@@ -1,14 +1,72 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useRef, useState, useEffect } from "react";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import UserProfileButton from "@components/UserProfileButton";
-import { Link } from "react-router-dom";
-import { AppBar, Box, IconButton, TextField } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Link, useNavigate } from "react-router-dom";
+import { AppBar, Box, TextField } from "@mui/material";
 import logo from "../assets/logo.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchText, setSearchTextLoading } from "../api/post/postSlice";
+import { useSearchFromURL } from "@utils/useSearchFromURL";
+import { useGetLoggedUserQuery } from "../api/api";
+import { setLoggedUserData, setUserIsLoading } from "../api/user/userSlice";
 
-export default function Navbar() {
+
+const Navbar = () => {
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
+  const reduxSearchText = useSelector((state) => state.post.searchText);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();  
+  const { data: loggedUser, isLoading } = useGetLoggedUserQuery();
+
+  useEffect(() => {
+    if (loggedUser?.data) {
+      dispatch(setLoggedUserData(loggedUser.data));
+      dispatch(setUserIsLoading(isLoading));
+    } else {
+      dispatch(setLoggedUserData(null));
+      dispatch(setUserIsLoading(!isLoading));
+    }
+  }, [dispatch, loggedUser]);
+
+  const debounceTimeout = useRef(null);
+  const searchFromURL = useSearchFromURL();
+
+ const [localSearch, setLocalSearch] = useState(
+  searchFromURL || reduxSearchText || "",
+);
+
+  const handleSearchText = (e) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    if (value) {
+      navigate(`/?search=${encodeURIComponent(value)}`);
+    } else {
+      navigate(`/`);
+    }
+    dispatch(setSearchTextLoading(true));
+    debounceTimeout.current = setTimeout(() => {
+      dispatch(setSearchText(value));
+      dispatch(setSearchTextLoading(false));
+    }, 1500);
+  };
+
+  useEffect(() => {
+    if (searchFromURL !== localSearch) {
+      setLocalSearch(searchFromURL);
+    }
+    if (localSearch) {
+      dispatch(setSearchText(localSearch));
+    }
+    if (!searchFromURL) {
+      dispatch(setSearchText(searchFromURL));
+    }
+  }, [searchFromURL]);
 
   return (
     <AppBar position="sticky" sx={{ boxShadow: "none", zIndex: "10" }}>
@@ -50,7 +108,9 @@ export default function Navbar() {
           <TextField
             required
             type="search"
-            placeholder="Search..."
+            value={localSearch}
+            onChange={handleSearchText}
+            placeholder="Search post title..."
             sx={{
               "& .MuiOutlinedInput-root": {
                 backgroundColor: "#f0f0f0",
@@ -64,11 +124,7 @@ export default function Navbar() {
               },
               width: "100%",
             }}
-          >
-            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
-              <SearchIcon onClick={handleSearchPost}/>
-            </IconButton>
-          </TextField>
+          />
         </Box>
         <Box
           sx={{
@@ -90,10 +146,10 @@ export default function Navbar() {
           >
             {loggedUserData?.username}
           </Typography>
-
           <UserProfileButton />
         </Box>
       </Toolbar>
     </AppBar>
   );
-}
+};
+export default Navbar

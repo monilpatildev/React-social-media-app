@@ -69,16 +69,10 @@ export const api = createApi({
         result ? [{ type: "GetPost", id: pageNumber }] : ["GetPost"],
     }),
 
-    getAllUsers: builder.query({
-      query: ({ pageSize, pageNumber }) => ({
-        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+    getSearchPost: builder.query({
+      query: (search) => ({
+        url: `posts/get-feed-post?search=${search}`,
       }),
-
-      forceRefetch({ currentArg, previousArg }) {
-        return currentArg !== previousArg;
-      },
-      providesTags: (result, error, { pageNumber }) =>
-        result ? [{ type: "GetAllUsers", id: pageNumber }] : ["GetAllUsers"],
     }),
 
     createPost: builder.mutation({
@@ -126,10 +120,32 @@ export const api = createApi({
       }),
     }),
 
-    getSearchPost: builder.query({
-      query: (search) => ({
-        url: `posts/get-feed-post?search=${search}`,
+    followUser: builder.mutation({
+      query: (id) => ({
+        url: "/users/follow-user",
+        method: "POST",
+        body: id,
       }),
+      invalidatesTags: [ "GetLoginUser"],
+    }),
+
+    unfollowUser: builder.mutation({
+      query: (id) => ({
+        url: "users/unfollow-user",
+        method: "POST",
+        body: id,
+      }),
+      invalidatesTags: ["GetLoginUser"],
+    }),
+
+    getAllUsers: builder.query({
+      query: ({ pageSize, pageNumber }) => ({
+        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+      }),
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
+      },
+      providesTags: ["GetAllUsers"],
     }),
   }),
 });
@@ -145,5 +161,7 @@ export const {
   useGetImageQuery,
   useGetUserQuery,
   useGetAllUsersQuery,
-  useGetSearchPostQuery
+  useGetSearchPostQuery,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
 } = api;

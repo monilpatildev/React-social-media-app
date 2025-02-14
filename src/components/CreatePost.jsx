@@ -21,7 +21,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { ToastContainer, toast } from "react-toastify";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setNewPost } from "../api/user/userSlice";
+import { setNewPost, setSearchText } from "../api/post/postSlice";
+import { useNavigate } from "react-router";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -53,7 +54,11 @@ const validationSchema = Yup.object({
 });
 
 const CreatePost = ({ setShowCreatePost }) => {
+  const [createPost, { isLoading }] = useCreatePostMutation();
+  const [imagePreview, setImagePreview] = useState(null);
   const dispatch = useDispatch();
+  const navigate= useNavigate()
+
   const {
     handleSubmit,
     control,
@@ -68,8 +73,6 @@ const CreatePost = ({ setShowCreatePost }) => {
       isPrivate: false,
     },
   });
-  const [createPost, { isLoading }] = useCreatePostMutation();
-  const [imagePreview, setImagePreview] = useState(null);
 
   const onSubmit = async (data) => {
     try {
@@ -84,7 +87,8 @@ const CreatePost = ({ setShowCreatePost }) => {
       const response = await createPost(formData).unwrap();
       toast.success("Post created successfully!", { autoClose: 800 });
       dispatch(setNewPost(response.data));
-      setShowCreatePost(false);
+      setShowCreatePost(false);  navigate(`/`);
+      dispatch(setSearchText(""));
     } catch (error) {
       console.log(error);
       toast.error("Failed to create post.");
@@ -305,7 +309,7 @@ const CreatePost = ({ setShowCreatePost }) => {
                 <Button
                   variant="contained"
                   color="default"
-                  sx={{color:"grey",boxShadow:"none"}}
+                  sx={{ color: "grey", boxShadow: "none" }}
                   onClick={() => setShowCreatePost(false)}
                 >
                   Cancel

@@ -1,17 +1,21 @@
-
 import Box from "@mui/material/Box";
 import { useGetAllUsersQuery } from "../api/api";
 import { Skeleton, Typography } from "@mui/material";
 import UserCard from "@components/UserCard";
 import Navbar from "@components/Navbar";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
+import { useSelector } from "react-redux";
 
 export default function UserList() {
   const pageSize = 8;
-  const { dataList: usersArray, data } = useInfiniteScroll(
-    useGetAllUsersQuery,
-    pageSize,
+  const { dataList } = useInfiniteScroll(useGetAllUsersQuery, pageSize);
+  const userData = useSelector((state) => state.user.loggedUserData);
+
+  const usersArray = dataList.filter(
+    (item) =>
+      item.email !== userData.email && item.username !== userData.username,
   );
+  
 
   return (
     <>
@@ -21,7 +25,7 @@ export default function UserList() {
           backgroundColor: "#f0f0f0",
           paddingTop: "30px",
           minHeight: "825px",
-          p:"20px"
+          p: "20px",
         }}
       >
         {usersArray?.length ? (
@@ -32,11 +36,10 @@ export default function UserList() {
                 m: "30px",
                 mx: 50,
                 backgroundColor: "#f0f0f0",
-              
               }}
             >
               {item ? (
-                <UserCard item={item} data={data} />
+                <UserCard item={item}  />
               ) : (
                 <>
                   <Skeleton
@@ -60,7 +63,7 @@ export default function UserList() {
             gutterBottom
             sx={{
               color: "text.secondary",
-             mt:"100px",
+              mt: "100px",
               textAlign: "center",
               fontSize: 38,
               width: "100%",
