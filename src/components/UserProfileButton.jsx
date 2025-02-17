@@ -1,21 +1,19 @@
-
 import Menu from "@mui/material/Menu";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
 import Cookies from "js-cookie";
+import UserProfileLogo from "./UserProfileLogo";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 import { toast, ToastContainer } from "react-toastify";
-// import userImage from "../assets/user.svg";
-import { setLoggedUserData } from "../api/user/userSlice";
 import { useState } from "react";
-import { api } from "../api/api";
-import UserProfileLogo from "./UserProfileLogo";
+import { setLoggedUserData } from "../api/user/userSlice";
+import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
+import { baseApi } from "../api/baseApi";
 
 export default function UserProfileButton() {
-  const userData = useSelector((state) => state.user.loggedUserData);
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,7 +31,6 @@ export default function UserProfileButton() {
   };
 
   const handleLogout = () => {
-    
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
@@ -41,7 +38,7 @@ export default function UserProfileButton() {
         dispatch(setAuthToken(null));
         Cookies.remove("token");
         dispatch(setUserLoggedIn(false));
-        dispatch(api.util.resetApiState());
+        dispatch(baseApi.util.resetApiState());
       },
     });
   };
@@ -55,9 +52,14 @@ export default function UserProfileButton() {
           aria-haspopup="true"
           aria-expanded={open ? "true" : undefined}
           onClick={handleClick}
-          sx={{ cursor: "pointer", width:"45px" ,height:"50px",backgroundColor:"white"}}
+          sx={{
+            cursor: "pointer",
+            width: "45px",
+            height: "50px",
+            backgroundColor: "white",
+          }}
         >
-          <UserProfileLogo user={userData}/>
+          <UserProfileLogo user={loggedUserData} />
         </Avatar>
       </Stack>
 

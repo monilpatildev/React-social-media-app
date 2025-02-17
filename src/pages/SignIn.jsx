@@ -12,10 +12,10 @@ import * as Yup from "yup";
 import logo from "../assets/logo.png";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { setUserLoggedIn } from "../api/auth/authSlice";
-import { useSignInUserMutation } from "../api/api";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useSignInUserMutation } from "../api/auth/authApi";
+import { setUserLoggedIn } from "../api/auth/authSlice";
 
 const validationSchema = Yup.object({
   email: Yup.string().email("Enter a valid email").required("Enter email"),
@@ -36,9 +36,10 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors ,isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   const onSubmit = async (data) => {
@@ -50,7 +51,7 @@ export default function SignIn() {
         toast.success("Sign in successfully!", {
           autoClose: 500,
           onClose: () => {
-            Cookies.set("token", response.data.data.token, { expires: 7 });
+            Cookies.set("token", response.data.token, { expires: 7 });
             dispatch(setUserLoggedIn(true));
           },
         });

@@ -11,10 +11,11 @@ import {
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
-import { useSignUpUserMutation } from "../api/api";
+
 import logo from "../assets/logo.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useSignUpUserMutation } from "../api/auth/authApi";
 
 const validationSchema = Yup.object({
   firstname: Yup.string()
@@ -60,6 +61,7 @@ export default function SignUp() {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
 
   const onSubmit = async (data) => {
@@ -81,7 +83,7 @@ export default function SignUp() {
     }
   };
 
-  console.log();
+
 
   return (
     <>
@@ -186,7 +188,7 @@ export default function SignUp() {
               sx={{
                 width: { xs: 250, md: 350 },
                 height: { xs: 250, md: 350 },
-                objectFit:"contain"
+                objectFit: "contain",
               }}
             />
           </CardContent>

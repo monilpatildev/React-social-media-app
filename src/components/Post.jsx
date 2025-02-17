@@ -1,19 +1,21 @@
 /* eslint-disable react/prop-types */
-import {
-  Box,
-  Button,
-  Skeleton,
-  Typography,
-} from "@mui/material";
-import { useGetImageQuery, useGetUserQuery } from "../api/api";
+import { Box, Skeleton, Stack, Typography } from "@mui/material";
+
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import UserProfileLogo from "./UserProfileLogo";
+import { useGetImageQuery } from "../api/post/postApi";
+import { useGetUserQuery } from "../api/user/userApi";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SendIcon from "@mui/icons-material/Send";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 const Post = ({ item }) => {
   const [showMore, setShowMore] = useState(false);
   const [showPostImage, setShowPostImage] = useState(false);
-  const { data: postImage } = useGetImageQuery(item.media_id);
+  
+  const { data: postImage ,} = useGetImageQuery(item.media_id);
   const { data: user, isLoading: userLoading } = useGetUserQuery(item.userId);
 
   const navigate = useNavigate();
@@ -45,42 +47,38 @@ const Post = ({ item }) => {
   };
 
   return (
-    <Box
+    <Stack
       sx={{
         borderRadius: "18px",
         backgroundColor: "white",
-        display: "flex",
-        padding: "30px",
-        gap: "10px",
-        flexDirection: "column",
+        p: "30px",
         px: "50px",
       }}
+      spacing={2}
     >
-      <Box
-        sx={{
-          display: "flex",
-          gap: "10px",
-          backgroundColor: "white",
-        }}
+      <Stack
+        direction="row"
+        spacing={4}
+        sx={{ backgroundColor: "white" }}
+        alignItems={"center"}
       >
-        <Box sx={{ mt: "15px" }} onClick={handleUserProfile}>
+        <Box onClick={handleUserProfile}>
           <UserProfileLogo user={user} />
         </Box>
-        <Box
+        <Stack
+          direction="column"
+          spacing={0.25}
           sx={{
             pr: 2,
-            margin: "5px 10px",
-            display: "flex",
-            alignItems: "start",
-            gap: "2px",
-            flexDirection: "column",
-            justifyContent: "start",
+            m: "5px 10px",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
             width: "100%",
           }}
         >
           <Typography
             variant="body2"
-            fontSize={38}
+            fontSize={30}
             onClick={handleUserProfile}
             sx={{
               cursor: "pointer",
@@ -88,7 +86,7 @@ const Post = ({ item }) => {
               whiteSpace: "nowrap",
               overflow: "hidden",
               maxWidth: "600px",
-              marginLeft: "10px",
+              ml: "10px",
             }}
           >
             {!userLoading ? user.username : ""}
@@ -99,37 +97,36 @@ const Post = ({ item }) => {
             sx={{
               color: "text.secondary",
               maxWidth: "600px",
-              marginLeft: "10px",
+              ml: "10px",
             }}
           >
             {formatDate(item)}
           </Typography>
-        </Box>
-      </Box>
+        </Stack>
+        <BookmarkBorderIcon sx={{ fontSize: "34px" }} />
+      </Stack>
       <Typography
-        gutterBottom
         variant="body2"
         fontSize={28}
         sx={{
-          textOverflow: `${!showMore ? "ellipsis " : ""}`,
-          whiteSpace: `${!showMore ? "nowrap " : ""}`,
-          overflow: `${!showMore ? "hidden " : ""}`,
-          lineBreak: `${!item.title.includes(" ") && "anywhere"}`,
-          maxWidth: "700px",
-          mt: "20px",
-          width: "100%",
+          textOverflow: !showMore ? "ellipsis" : "",
+          whiteSpace: !showMore ? "nowrap" : "",
+          overflow: !showMore ? "hidden" : "",
+          lineBreak: !item.title.includes(" ") ? "anywhere" : "normal",
           wordBreak: "keep-all",
+          minWidth:"780px",
+          maxWidth:"800px"
         }}
       >
         {item.title}
       </Typography>
-      <Box>
+      <Stack>
         {postImage ? (
           <img
             style={{
               width: "100%",
               height: 600,
-              objectFit: `${!showPostImage ? "cover" : "contain"}`,
+              objectFit: !showPostImage ? "cover" : "contain",
               borderRadius: "24px",
             }}
             onClick={() => setShowPostImage(!showPostImage)}
@@ -137,52 +134,54 @@ const Post = ({ item }) => {
             src={postImage}
           />
         ) : (
-          <>
-            <Skeleton variant="rectangular" height={450} sx={{ my: 5 }} />
-          </>
+          <Skeleton variant="rectangular" height={450} sx={{ my: 5 }} />
         )}
-      </Box>
-      <Box
-        sx={{
-          mt: "10px",
-          display: "flex",
-          alignItems: "start",
-          gap: "2px",
-          justifyContent: "space-between",
-        }}
-      >
+      </Stack>
+      <Stack direction="row" alignItems="flex-start" spacing={3}>
+        <FavoriteBorderIcon
+          sx={{ color: "grey", fontSize: "32px", cursor: "pointer" }}
+        />
+        <ChatBubbleOutlineIcon
+          sx={{ color: "grey", fontSize: "32px", cursor: "pointer" }}
+        />
+        <SendIcon sx={{ color: "grey", fontSize: "32px", cursor: "pointer" }} />
+      </Stack>
+      <Box component={"span"} sx={{ mt: "10px", display: "inline" }}>
         <Typography
           variant="caption"
           fontSize={24}
           sx={{
             display: "block",
             color: "text.secondary",
-            textOverflow: `${!showMore ? "ellipsis " : ""}`,
-            whiteSpace: `${!showMore ? "nowrap " : ""}`,
-            overflow: `${!showMore ? "hidden " : ""}`,
             wordBreak: "keep-all",
-            maxWidth: "1000px",
             fontStyle: "italic",
-            lineBreak: `${!item.description.includes(" ") && "anywhere"}`,
+            lineBreak: !item.description.includes(" ") ? "anywhere" : "normal",
+            minWidth:"800px"
           }}
         >
-          {item.description}
-        </Typography>
-
-        {item.description.length > 80 ? (
-          <Button
-            variant="contained"
-            color="default"
-            sx={{ color: "grey", boxShadow: "none", width: "100px", px: "0px" }}
-            onClick={() => setShowMore(!showMore)}
-          >
-            {showMore ? "Show Less" : "Show More"}
-          </Button>
-        ) : (
-          ""
-        )}
-      </Box>{" "}
-    </Box>
+          {(!showMore && item.description.length > 80)
+            ? item.description.slice(0, 80)
+            : item.description}
+          {!showMore && item.description.length > 80 && "..."}{" "}
+          {item.description.length > 80 && (
+            <Box
+              component={"span"}
+              sx={{
+                fontSize: "18px",
+                cursor: "pointer",
+                "&:hover": {
+                  color: "primary.main",
+                  textDecoration: "underline",
+                },
+              }}
+              onClick={() => setShowMore(!showMore)}
+            >
+              {showMore ? "show less" : "more"}
+            </Box>
+          )}
+        </Typography>{" "}
+      </Box>
+    </Stack>
   );
 };
 

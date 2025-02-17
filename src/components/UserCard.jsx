@@ -1,103 +1,173 @@
 /* eslint-disable react/prop-types */
-import { Box, Button, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import UserProfileLogo from "./UserProfileLogo";
-import { useFollowUserMutation, useUnfollowUserMutation } from "../api/api";
 import { useSelector } from "react-redux";
+import {
+  useAcceptFollowRequestMutation,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+} from "../api/follow/followApi";
+import { useGetUserQuery } from "../api/user/userApi";
+import { useLocation } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
 
-const UserCard = ({ item }) => {
-  const userData = useSelector((state) => state.user.loggedUserData);
-  // const dispatch = useDispatch();
-  const isFollowing = userData.following.find(
-    (following) => following.followingId === item._id,
-  )
-    ? true
-    : false;
+const UserCard = ({
+  item,
+  isLoggedUserFollowerPage,
+  isLoggedUserFollowingPage,
+  isUsersFollowerPage,
+  isUsersFollowingPage,
+}) => {
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
+  const location = useLocation();
+  
+  const isFollowRequestPage = location.pathname === "/follow-request";
+  const isAllUsersPage = location.pathname === "/users";
 
-  const [followUser, { isLoading }] = useFollowUserMutation();
-  const [unfollowUser,  { isLoading: isUnfollowing }] =
-    useUnfollowUserMutation();
+  const isFollowing =
+    !isFollowRequestPage &&
+    loggedUserData.following.find(
+      (following) => following.followingId === item._id,
+    )
+      ? true
+      : false;
+
+  const { data: requestedUser } = useGetUserQuery(
+    isLoggedUserFollowerPage || isUsersFollowerPage || isFollowRequestPage
+      ? item?.followerId
+      : item?.followingId,
+    {
+      skip: !item.followerId || !item?.followingId,
+    },
+  );
+
+  const followRequestPageUsers = isFollowRequestPage && requestedUser;
+  const allUsersPageUsers = isAllUsersPage && item;
+
+  const user =
+    isLoggedUserFollowerPage ||
+    isLoggedUserFollowingPage ||
+    isUsersFollowerPage ||
+    isUsersFollowingPage
+      ? requestedUser
+      : followRequestPageUsers || allUsersPageUsers;
+
+  const [followUser] = useFollowUserMutation();
+  const [unfollowUser] = useUnfollowUserMutation();
+  const [acceptFollowRequest] = useAcceptFollowRequestMutation();
+console.log(isFollowing);
 
   const handleFollowUser = () => {
-    if (!isFollowing) {
-      followUser({ id: item._id });
+    if (isFollowRequestPage) {
+      toast.success("You accept request!", {
+        autoClose: 300,
+        onClose: () => {
+          acceptFollowRequest({ id: item.followerId });
+        },
+      });
     } else {
-      unfollowUser({ id: item._id });
+      if (!isFollowing) {
+        followUser({ id: item._id });
+      } else {
+        unfollowUser({ id: item._id });
+      }
     }
   };
 
   return (
-    <Box
-      sx={{
-        pr: 2,
-        margin: "5px 10px",
-        display: "flex",
-        padding: "10px",
-        alignItems: "center",
-        gap: "10px",
-        borderRadius: "12px",
-        backgroundColor: "#fff",
-        justifyContent: "space-between",
-      }}
-    >
-      <Box
+    <>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={1.25}
         sx={{
-          display: "flex",
-          alignItems: "center",
+          pr: 2,
+          m: "5px 10px",
+          p: "10px",
+          borderRadius: "12px",
+          backgroundColor: "#fff",
         }}
       >
-        <Box sx={{ ml: "30px" }}>
-          <UserProfileLogo user={item} />
-        </Box>
+        <Stack direction="row" alignItems="center" spacing={2} pl={5}>
+          <UserProfileLogo user={user} />
 
-        <Box
-          sx={{
-            pr: 2,
-            margin: "10px 55px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Typography
-            variant="body2"
-            fontSize={34}
-            sx={{
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              maxWidth: "700px",
-            }}
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ pl: 5, m: "10px 55px" }}
           >
-            {item.firstname} {item.lastname}
-          </Typography>
-          <Typography
-            variant="caption"
-            fontSize={18}
-            sx={{
-              display: "block",
-              color: "text.secondary",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              maxWidth: "1000px",
-              fontStyle: "italic",
-            }}
-          >
-            {item.email}
-          </Typography>
-        </Box>
-      </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", width: "200px " }}>
-        <Button
-          variant="contained"
-          color={isFollowing ? "default" : "primary"}
-          onClick={handleFollowUser}
-          loading={isUnfollowing || isLoading}
-          sx={{width:"100px"}}
+            <Typography
+              variant="body2"
+              fontSize={34}
+              sx={{
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                maxWidth: "700px",
+              }}
+            >
+              {user?.firstname} {user?.lastname}
+            </Typography>
+            {!isFollowRequestPage && (
+              <Typography
+                variant="caption"
+                fontSize={18}
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  maxWidth: "1000px",
+                  fontStyle: "italic",
+                }}
+              >
+                {user?.email}
+              </Typography>
+            )}
+          </Stack>
+        </Stack>
+
+        <Stack
+          sx={{ width: "200px" }}
+          justifyContent="center"
+          alignItems="center"
         >
-          {isFollowing ? "Unfollow" : "Follow"}
-        </Button>
-      </Box>
-    </Box>
+          {user?.username !== loggedUserData?.username ? (
+            <Button
+              variant="contained"
+              color={
+                isFollowRequestPage
+                  ? "primary"
+                  : user?.isPrivate
+                    ? isFollowing
+                      ? "default"
+                      : "secondary"
+                    : isFollowing
+                      ? "default"
+                      : "primary"
+              }
+              onClick={handleFollowUser}
+              sx={{ width: "100px" }}
+            >
+              {isFollowRequestPage
+                ? "Accept"
+                : user?.isPrivate
+                  ? isFollowing
+                    ? "Unfollow"
+                    : "Request"
+                  : isFollowing
+                    ? "Unfollow"
+                    : "Follow"}
+            </Button>
+          ) : (
+            ""
+          )}
+        </Stack>
+      </Stack>
+      <ToastContainer />
+    </>
   );
 };
 

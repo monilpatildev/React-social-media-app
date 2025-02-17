@@ -2,14 +2,17 @@ import Box from "@mui/material/Box";
 import { Skeleton, Typography } from "@mui/material";
 import Post from "./Post";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
-import { useGetPostQuery, useGetSearchPostQuery } from "../api/api";
+
 import { useSelector } from "react-redux";
+import { useGetPostQuery, useGetSearchPostQuery } from "../api/post/postApi";
 
 export default function PostList() {
   const searchText = useSelector((state) => state.post.searchText);
   const searchPostsLoading = useSelector(
     (state) => state.post.searchPostsLoading,
-  )
+  );
+
+  
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
     searchText,
     { skip: !searchText },
@@ -18,9 +21,9 @@ export default function PostList() {
   const pageSize = 2;
   const { dataList, isLoading: infiniteLoading } = useInfiniteScroll(
     useGetPostQuery,
-    pageSize
+    pageSize,
   );
-  const posts = searchText ? (searchPosts ? searchPosts.data : []) : dataList;
+  const posts = searchText ? (searchPosts && searchPosts.data ) : dataList;
   const loading =
     searchPostsLoading || searchLoading || infiniteLoading ? true : false;
 

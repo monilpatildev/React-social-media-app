@@ -4,7 +4,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import {
   Card,
-  CardActions,
   CardContent,
   Typography,
   Box,
@@ -13,12 +12,13 @@ import {
   FormControlLabel,
   InputLabel,
   Switch,
+  Stack,
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { useEditProfileMutation } from "../api/api";
-import { setLoggedUserData } from "../api/user/userSlice";
 import CloseIcon from "@mui/icons-material/Close";
+import { useEditProfileMutation } from "../api/user/userApi";
+import { setLoggedUserData } from "../api/user/userSlice";
 
 const validationSchema = Yup.object({
   firstname: Yup.string()
@@ -35,7 +35,7 @@ const inputFieldArray = [
 ];
 
 const EditProfile = ({ setEditForm }) => {
-  const userData = useSelector((state) => state.user.loggedUserData);
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const dispatch = useDispatch();
   const [editProfile] = useEditProfileMutation();
 
@@ -43,14 +43,16 @@ const EditProfile = ({ setEditForm }) => {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      firstname: userData.firstname,
-      lastname: userData.lastname,
-      account: userData.isPrivate,
+      firstname: loggedUserData.firstname,
+      lastname: loggedUserData.lastname,
+      account: loggedUserData.isPrivate,
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (data) => {
@@ -69,7 +71,7 @@ const EditProfile = ({ setEditForm }) => {
         toast.success("User updated!", { autoClose: 500 });
         dispatch(
           setLoggedUserData({
-            ...userData,
+            ...loggedUserData,
             ...response.data.data,
           }),
         );
@@ -93,23 +95,21 @@ const EditProfile = ({ setEditForm }) => {
           zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
       />
-
-      <Box
+      <Stack
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
           position: "fixed",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           zIndex: (theme) => theme.zIndex.drawer + 3,
         }}
+        justifyContent="center"
+        alignItems="center"
       >
         <Card
           variant="outlined"
           sx={{
-            padding: "20px",
+            p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
             width: "500px",
@@ -117,13 +117,11 @@ const EditProfile = ({ setEditForm }) => {
           }}
         >
           <CardContent sx={{ display: "flex", flexDirection: "column" }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "10px",
-              }}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: "10px" }}
             >
               <Typography sx={{ color: "text.secondary", fontSize: 38 }}>
                 Edit Profile
@@ -132,50 +130,46 @@ const EditProfile = ({ setEditForm }) => {
                 sx={{ cursor: "pointer", fontSize: 38 }}
                 onClick={() => setEditForm(false)}
               />
-            </Box>
-
-            {inputFieldArray.map((field) => (
-              <Box key={field.name} sx={{ mb: 2 }}>
-                <InputLabel sx={{ mx: "20px", my: "5px" }}>
-                  {field.label}
-                </InputLabel>
-                <TextField
-                  fullWidth
-                  required
-                  {...register(field.name)}
-                  type={field.type}
-                  error={!!errors[field.name]}
-                  helperText={errors[field.name]?.message}
-                  sx={{
-                    width: "100%",
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "white",
-                      borderRadius: "48px",
-                      "& fieldset": {
+            </Stack>
+            <Stack spacing={2}>
+              {inputFieldArray.map((field) => (
+                <Stack key={field.name} spacing={1} sx={{ mx: "20px" }}>
+                  <InputLabel sx={{ my: "5px" }}>{field.label}</InputLabel>
+                  <TextField
+                    fullWidth
+                    required
+                    {...register(field.name)}
+                    type={field.type}
+                    error={!!errors[field.name]}
+                    helperText={errors[field.name]?.message}
+                    sx={{
+                      width: "100%",
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "white",
                         borderRadius: "48px",
+                        "& fieldset": {
+                          borderRadius: "48px",
+                        },
                       },
-                    },
-                    "& .MuiInputBase-input": {
-                      padding: "10px",
-                    },
-                  }}
-                />
-              </Box>
-            ))}
-
+                      "& .MuiInputBase-input": {
+                        padding: "10px",
+                      },
+                    }}
+                  />
+                </Stack>
+              ))}
+            </Stack>
             <FormControlLabel
               control={
                 <Switch
                   {...register("account")}
+                  checked={watch("account")}
                   onChange={(e) => setValue("account", e.target.checked)}
                 />
               }
-              label="Public Account"
+              label="Private Account"
             />
-
-            <CardActions
-              sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
-            >
+            <Stack direction="row" justifyContent="center" spacing={2}>
               <Button variant="contained" onClick={handleSubmit(onSubmit)}>
                 Save
               </Button>
@@ -186,10 +180,10 @@ const EditProfile = ({ setEditForm }) => {
               >
                 Cancel
               </Button>
-            </CardActions>
+            </Stack>
           </CardContent>
         </Card>
-      </Box>
+      </Stack>
       <ToastContainer />
     </>
   );

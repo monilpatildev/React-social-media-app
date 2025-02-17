@@ -7,19 +7,25 @@ import {
   CardContent,
   CircularProgress,
   Divider,
+  Stack,
   Typography,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useSelector, useDispatch } from "react-redux";
-import profileBg from "../assets/profile_bg.jpg";
-import DeleteUserForm from "@components/DeleteUserForm";
+import profileBg from "../assets/logo.png";
+import { useParams, useLocation, useNavigate, Link } from "react-router";
+import { useGetLoggedUserQuery, useGetUserQuery } from "../api/user/userApi";
 import { setLoggedUserData } from "../api/user/userSlice";
-import { useGetLoggedUserQuery, useGetUserQuery } from "../api/api";
-import { useParams, useLocation, useNavigate } from "react-router";
+import PersonIcon from "@mui/icons-material/Person";
+import DeleteUserForm from "@components/DeleteUserForm";
+import LockIcon from "@mui/icons-material/Lock";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-const UserProfile = () => {
-  const userData = useSelector((state) => state.user.loggedUserData);
+const UserProfile = ()=> {
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const [editForm, setEditForm] = useState(false);
   const [deleteUserForm, setDeleteUserForm] = useState(false);
   const dispatch = useDispatch();
@@ -49,7 +55,7 @@ const UserProfile = () => {
   }, [dispatch, id, location.pathname, loggedUser]);
 
   const isProfilePage = location.pathname === "/profile";
-  const profileData = isProfilePage ? userData : user;
+  const profileData = isProfilePage ? loggedUserData : user;
 
   if ((isProfilePage && loggedUserLoading) || (!isProfilePage && userLoading)) {
     return (
@@ -66,211 +72,261 @@ const UserProfile = () => {
     );
   }
 
+  const handleFollowersPage = () => {
+    if (id) {
+      navigate(`/user/${id}/followers`);
+    } else {
+      navigate("/user/followers");
+    }
+  };
+
+  const handleFollowingPage = () => {
+    if (id) {
+      navigate(`/user/${id}/following`);
+    } else {
+      navigate("/user/following");
+    }
+  };
+
   return (
     <>
       <Navbar />
+      <Button sx={{ ml: "24px", fontSize: "24px" ,position:"fixed"}}>
+        <Link to={-1}>
+          {" "}
+          <ArrowBackIcon sx={{ mr: "5px" }} /> Back{" "}
+        </Link>
+      </Button>
       {profileData ? (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "start",
-            padding: "10px 300px",
-            width: "100%",
-            height: "91vh",
-            backgroundColor: "#f0f0f0",
-          }}
-        >
-          <Box sx={{ height: "20px" }}>
-            <img
-              src={profileBg}
-              alt="Profile Background"
-              style={{
-                objectFit: "cover",
-                height: "500px",
-                width: "100%",
-                marginTop: "120px",
-                borderRadius: "24px",
-                boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
-              }}
-            />
-          </Box>
-
-          <CardContent>
+        <>
+          <Stack direction="column" spacing={2} mx={50} p={5}>
             <Typography sx={{ color: "text.secondary", fontSize: 32 }}>
               {isProfilePage ? "Your Profile" : "User Profile"}
             </Typography>
-          </CardContent>
-          <CardContent
-            sx={{
-              width: "100%",
-              paddingTop: "80px",
-              paddingBottom: "0px",
-              justifyContent: "space-between",
-              borderRadius: "24px",
-            }}
-          >
-            <Box
-              sx={{
-                marginLeft: "120px",
-                boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
-                borderRadius: "24px",
-                backgroundColor: "rgba(0, 255, 255, 0.1)",
-                width: "140px",
-                marginBottom: "15px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "140px",
-              }}
+            <Stack
+              spacing={2}
+              borderRadius={8}
+              p={5}
+              my={10}
+              boxShadow={"1px 0px 10px rgba(0,0,0,0.3)"}
+              bgcolor={"white"}
             >
-              <Typography sx={{ color: "text.secondary", fontSize: 42 }}>
-                {profileData?.firstname?.[0]?.toUpperCase()}
-                {profileData?.lastname?.[0]?.toUpperCase()}
-              </Typography>
-            </Box>
-            <Divider sx={{mb:"15px"}}/>
-            <CardContent
-              sx={{
-                width: "100%",
-                paddingTop: "0px",
-                display: "flex",
-                justifyContent: "space-around",
-                borderRadius: "24px",
-              }}
-            >
-              <Box
+              <Stack
+                direction="row"
+                spacing={2}
                 sx={{
-                  padding: "25px",
-                  boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
+                  justifyContent: "center",
                   borderRadius: "24px",
+                  alignItems: "center",
                 }}
               >
-                <Typography
+                <Stack
+                  justifyContent={"center"}
+                  alignItems={"center"}
                   sx={{
-                    color: "text.secondary",
-                    fontSize: 28,
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    maxWidth: "650px",
+                    boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
+                    borderRadius: "28px",
+                    backgroundColor: "rgba(0, 255, 255, 0.1)",
+                    width: "100px",
+                    height: "100px",
                   }}
                 >
-                  {profileData?.firstname} {profileData?.lastname}
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "text.secondary",
-                    fontSize: 16,
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    maxWidth: "650px",
-                  }}
-                >
-                  Username: {profileData?.username}
-                </Typography>
-                <Typography sx={{ color: "text.secondary", fontSize: 16 }}>
-                  Account:{" "}
-                  {profileData?.isPrivate
-                    ? "Private Account"
-                    : "Public Account"}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  width: "50%",
-                  display: "flex",
-                  flexDirection: "column",
-                  textAlign: "center",
-                }}
+                  <Typography sx={{ color: "text.secondary", fontSize: 38 }}>
+                    {profileData?.firstname?.[0]?.toUpperCase()}
+                    {profileData?.lastname?.[0]?.toUpperCase()}
+                  </Typography>
+                </Stack>
+                <Stack width={"100%"} alignItems={"end"}>
+                  <img
+                    src={profileBg}
+                    alt="Profile Background"
+                    style={{
+                      objectFit: "cover",
+                      height: "100px",
+                      width: "280px",
+                      borderRadius: "24px",
+                    }}
+                  />
+                </Stack>
+              </Stack>
+              <Divider sx={{ mb: "15px" }} />
+              <Stack
+                spacing={2}
+                justifyContent={"center"}
+                alignItems={"center"}
               >
                 <Box
                   sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "space-between",
+                    padding: "25px",
                   }}
                 >
-                  <Typography
-                    gutterBottom
-                    sx={{
-                      color: "text.primary",
-                      width: "100%",
-                      fontSize: 24,
-                    }}
+                  <Stack
+                    direction={"row"}
+                    justifyContent={"start"}
+                    alignItems={"center"}
                   >
-                    {profileData?.totalFollowing}
-                  </Typography>
-                  <Typography
-                    gutterBottom
-                    sx={{
-                      color: "text.primary",
-                      width: "100%",
-                      fontSize: 24,
-                    }}
+                    <PersonIcon sx={{ color: "grey" }} />
+                    <Typography
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: 32,
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        maxWidth: "650px",
+                        ml: "10px",
+                      }}
+                    >
+                      {profileData?.firstname} {profileData?.lastname}
+                    </Typography>
+                  </Stack>
+                  <Stack
+                    direction={"row"}
+                    justifyContent={"start"}
+                    alignItems={"center"}
                   >
-                    {profileData?.totalFollower}
-                  </Typography>
+                    <DriveFileRenameOutlineIcon sx={{ color: "grey" }} />
+                    <Typography
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: 18,
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        maxWidth: "650px",
+                        ml: "10px",
+                      }}
+                    >
+                      {profileData?.username}
+                    </Typography>
+                  </Stack>{" "}
+                  <Stack
+                    direction={"row"}
+                    justifyContent={"start"}
+                    alignItems={"center"}
+                  >
+                    <LockIcon sx={{ color: "grey" }} />
+                    <Typography
+                      sx={{
+                        color: "text.secondary",
+                        fontSize: 18,
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        maxWidth: "650px",
+                        ml: "10px",
+                      }}
+                    >
+                      {profileData?.isPrivate
+                        ? "Private Account"
+                        : "Public Account"}
+                    </Typography>{" "}
+                  </Stack>
                 </Box>
-
                 <Box
                   sx={{
-                    width: "100%",
+                    width: "50%",
                     display: "flex",
-                    justifyContent: "space-between",
+                    flexDirection: "column",
+                    textAlign: "center",
                   }}
                 >
-                  <Typography
+                  <Box
                     sx={{
-                      color: "text.primary",
-                      fontSize: 18,
-                      fontWeight: "600",
                       width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
                     }}
                   >
-                    Following
-                  </Typography>
+                    <Typography
+                      gutterBottom
+                      onClick={handleFollowingPage}
+                      sx={{
+                        color: "text.primary",
+                        width: "100%",
+                        fontSize: 24,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <PeopleAltIcon sx={{ mr: "10px", color: "grey" }} />
+                      {profileData?.totalFollowing}
+                    </Typography>
+                    <Typography
+                      gutterBottom
+                      onClick={handleFollowersPage}
+                      sx={{
+                        color: "text.primary",
+                        width: "100%",
+                        fontSize: 24,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <PeopleAltIcon sx={{ mr: "10px", color: "grey" }} />
+                      {profileData?.totalFollower}
+                    </Typography>
+                  </Box>
 
-                  <Typography
+                  <Box
                     sx={{
-                      color: "text.primary",
-                      fontSize: 18,
-                      fontWeight: "600",
                       width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
                     }}
                   >
-                    Followers
-                  </Typography>
+                    <Typography
+                      sx={{
+                        color: "text.primary",
+                        fontSize: 18,
+                        fontWeight: "600",
+                        width: "100%",
+                      }}
+                    >
+                      Following
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color: "text.primary",
+                        fontSize: 18,
+                        fontWeight: "600",
+                        width: "100%",
+                      }}
+                    >
+                      Followers
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </CardContent>
-          {isProfilePage && (
-            <CardContent sx={{ width: "100%" }}>
-              <Typography
-                sx={{
-                  color: "text.secondary",
-                  fontSize: 16,
-                  display: "flex",
-                  justifyContent: "space-around",
-                  margin: "20px",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => setDeleteUserForm(true)}
-                  color="error"
-                >
-                  Delete Account
-                </Button>
-                <Button variant="contained" onClick={() => setEditForm(true)}>
-                  Edit Profile
-                </Button>
-              </Typography>
-            </CardContent>
-          )}
-        </Box>
+              </Stack>
+              {isProfilePage && (
+                <CardContent sx={{ width: "100%" }}>
+                  <Typography
+                    sx={{
+                      color: "text.secondary",
+                      fontSize: 16,
+                      display: "flex",
+                      justifyContent: "space-around",
+                      margin: "20px",
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => setDeleteUserForm(true)}
+                      color="error"
+                    >
+                      Delete Account
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={() => setEditForm(true)}
+                    >
+                      Edit Profile
+                    </Button>
+                  </Typography>
+                </CardContent>
+              )}{" "}
+            </Stack>
+          </Stack>
+        </>
       ) : (
         <Box
           sx={{
@@ -285,7 +341,10 @@ const UserProfile = () => {
       )}
       {editForm &&
         createPortal(
-          <EditProfile setEditForm={setEditForm} userData={userData} />,
+          <EditProfile
+            setEditForm={setEditForm}
+            loggedUserData={loggedUserData}
+          />,
           document.body,
         )}
       {deleteUserForm &&

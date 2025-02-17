@@ -3,22 +3,24 @@ import { useRef, useState, useEffect } from "react";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import UserProfileButton from "@components/UserProfileButton";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AppBar, Box, TextField } from "@mui/material";
-import logo from "../assets/logo.png";
 import { useDispatch, useSelector } from "react-redux";
-import { setSearchText, setSearchTextLoading } from "../api/post/postSlice";
 import { useSearchFromURL } from "@utils/useSearchFromURL";
-import { useGetLoggedUserQuery } from "../api/api";
+import { setSearchText, setSearchTextLoading } from "../api/post/postSlice";
+import { useGetLoggedUserQuery } from "../api/user/userApi";
 import { setLoggedUserData, setUserIsLoading } from "../api/user/userSlice";
-
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const reduxSearchText = useSelector((state) => state.post.searchText);
   const dispatch = useDispatch();
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
+  const location = useLocation();
   const { data: loggedUser, isLoading } = useGetLoggedUserQuery();
+
+  const isNavbar = location.pathname === "/";
 
   useEffect(() => {
     if (loggedUser?.data) {
@@ -33,9 +35,9 @@ const Navbar = () => {
   const debounceTimeout = useRef(null);
   const searchFromURL = useSearchFromURL();
 
- const [localSearch, setLocalSearch] = useState(
-  searchFromURL || reduxSearchText || "",
-);
+  const [localSearch, setLocalSearch] = useState(
+    searchFromURL || reduxSearchText || "",
+  );
 
   const handleSearchText = (e) => {
     const value = e.target.value;
@@ -51,7 +53,6 @@ const Navbar = () => {
     }
     dispatch(setSearchTextLoading(true));
     debounceTimeout.current = setTimeout(() => {
-      dispatch(setSearchText(value));
       dispatch(setSearchTextLoading(false));
     }, 1500);
   };
@@ -61,12 +62,22 @@ const Navbar = () => {
       setLocalSearch(searchFromURL);
     }
     if (localSearch) {
-      dispatch(setSearchText(localSearch));
+      debounceTimeout.current = setTimeout(() => {
+        dispatch(setSearchText(localSearch));
+      }, 800);
     }
     if (!searchFromURL) {
       dispatch(setSearchText(searchFromURL));
     }
   }, [searchFromURL]);
+
+  const handleHomePage = () => {
+    if(reduxSearchText){
+      navigate(`/?search=${encodeURIComponent(reduxSearchText)}`);
+    }else{
+      navigate("/")
+    }
+  };
 
   return (
     <AppBar position="sticky" sx={{ boxShadow: "none", zIndex: "10" }}>
@@ -81,57 +92,61 @@ const Navbar = () => {
         <Typography
           variant="h4"
           component="div"
-          sx={{ color: "black", maxWidth: "180px" }}
+          sx={{ color: "black", width: "300px" }}
         >
-          <Link to="/">
-            <Box
-              component="img"
-              src={logo}
-              alt="logo"
-              sx={{
-                width: "200px",
-                height: "50px",
-                objectFit: "contain",
-                m: 0,
-                p: 0,
-              }}
-            />
-          </Link>
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "30%",
-          }}
-        >
-          <TextField
-            required
-            type="search"
-            value={localSearch}
-            onChange={handleSearchText}
-            placeholder="Search post title..."
+          <Box
+            onClick={handleHomePage}
+            component="img"
+            src={logo}
+            alt="logo"
             sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "#f0f0f0",
-                borderRadius: "48px",
-                "& fieldset": {
-                  borderRadius: "48px",
-                },
-              },
-              "& .MuiInputBase-input": {
-                padding: "8px",
-              },
-              width: "100%",
+              ml: "20px",
+              height: "50px",
+              objectFit: "contain",
+              cursor:"pointer"
             }}
           />
-        </Box>
+        </Typography>
+        {isNavbar ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "30%",
+            }}
+          >
+            <TextField
+              required
+              type="search"
+              value={localSearch}
+              onChange={handleSearchText}
+              placeholder="Search post title..."
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "#f0f0f0",
+                  borderRadius: "48px",
+                  "& fieldset": {
+                    borderRadius: "48px",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  padding: "8px",
+                },
+                width: "100%",
+              }}
+            />
+          </Box>
+        ) : (
+          ""
+        )}
+
         <Box
           sx={{
             color: "black",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            width: "300px",
+            justifyContent: "end",
           }}
         >
           <Typography
@@ -141,7 +156,6 @@ const Navbar = () => {
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               overflow: "hidden",
-              maxWidth: "650px",
             }}
           >
             {loggedUserData?.username}
@@ -152,4 +166,4 @@ const Navbar = () => {
     </AppBar>
   );
 };
-export default Navbar
+export default Navbar;

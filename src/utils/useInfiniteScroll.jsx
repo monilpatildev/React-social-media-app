@@ -5,6 +5,7 @@ import { setNewPost } from "../api/post/postSlice";
 export default function useInfiniteScroll(queryFunction, pageSize) {
   const [pageNumber, setPageNumber] = useState(1);
   const [dataList, setDataList] = useState([]);
+  const dispatch = useDispatch();
 
   const searchText = useSelector((state) => state.post.searchText);
   const { data, isFetching, isLoading } = queryFunction(
@@ -16,7 +17,6 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
       skip: searchText,
     },
   );
-  const dispatch = useDispatch();
 
   const newPost = useSelector((state) => state.post.newPost);
   const totalPages = Math.ceil(data?.total / pageSize);
@@ -35,6 +35,7 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
       dispatch(setNewPost(null));
     }
   }, [newPost, dispatch]);
+  
   useEffect(() => {
     if (!searchText) {
       const onScroll = () => {
@@ -50,7 +51,7 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
             console.log("Fetching more data...");
             setPageNumber((prev) => prev + 1);
           }
-        }, 200);
+        }, 300);
       };
 
       window.addEventListener("scroll", onScroll);
@@ -60,7 +61,7 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
 
   useEffect(() => {
     if (!searchText) {
-      setPageNumber((prev)=> prev)
+      setPageNumber((prev) => prev);
     }
     if (data?.data?.length) {
       setDataList((prevPosts) => {

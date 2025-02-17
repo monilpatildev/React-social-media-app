@@ -13,16 +13,17 @@ import {
   Button,
   FormHelperText,
   InputLabel,
+  Stack,
   styled,
   Switch,
 } from "@mui/material";
-import { useCreatePostMutation } from "../api/api";
 import CloseIcon from "@mui/icons-material/Close";
 import { ToastContainer, toast } from "react-toastify";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setNewPost, setSearchText } from "../api/post/postSlice";
 import { useNavigate } from "react-router";
+import { useCreatePostMutation } from "../api/post/postApi";
+import { setNewPost, setSearchText } from "../api/post/postSlice";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -57,7 +58,7 @@ const CreatePost = ({ setShowCreatePost }) => {
   const [createPost, { isLoading }] = useCreatePostMutation();
   const [imagePreview, setImagePreview] = useState(null);
   const dispatch = useDispatch();
-  const navigate= useNavigate()
+  const navigate = useNavigate();
 
   const {
     handleSubmit,
@@ -72,6 +73,7 @@ const CreatePost = ({ setShowCreatePost }) => {
       image: null,
       isPrivate: false,
     },
+    mode: "onChange",
   });
 
   const onSubmit = async (data) => {
@@ -87,7 +89,8 @@ const CreatePost = ({ setShowCreatePost }) => {
       const response = await createPost(formData).unwrap();
       toast.success("Post created successfully!", { autoClose: 800 });
       dispatch(setNewPost(response.data));
-      setShowCreatePost(false);  navigate(`/`);
+      setShowCreatePost(false);
+      navigate(`/`);
       dispatch(setSearchText(""));
     } catch (error) {
       console.log(error);
@@ -99,6 +102,7 @@ const CreatePost = ({ setShowCreatePost }) => {
     <>
       <Box
         component="div"
+        onClick={() => setShowCreatePost(false)}
         sx={{
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           position: "fixed",
@@ -109,22 +113,21 @@ const CreatePost = ({ setShowCreatePost }) => {
           zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
       />
-      <Box
+      <Stack
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
           position: "fixed",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
           zIndex: (theme) => theme.zIndex.drawer + 3,
         }}
+        justifyContent="center"
+        alignItems="center"
       >
         <Card
           variant="outlined"
           sx={{
-            padding: "20px",
+            p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
             width: "600px",
@@ -132,13 +135,15 @@ const CreatePost = ({ setShowCreatePost }) => {
           }}
         >
           <CardContent sx={{ display: "flex", flexDirection: "column" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: "10px" }}
+            >
               <Typography
                 gutterBottom
-                sx={{
-                  fontSize: 28,
-                  textAlign: "center",
-                }}
+                sx={{ fontSize: 28, textAlign: "center" }}
               >
                 Create Post
               </Typography>
@@ -146,8 +151,7 @@ const CreatePost = ({ setShowCreatePost }) => {
                 sx={{ cursor: "pointer", fontSize: 34 }}
                 onClick={() => setShowCreatePost(false)}
               />
-            </Box>
-
+            </Stack>
             <form onSubmit={handleSubmit(onSubmit)}>
               <InputLabel sx={{ m: "10px" }}>Title *</InputLabel>
               <Controller
@@ -176,6 +180,7 @@ const CreatePost = ({ setShowCreatePost }) => {
                   />
                 )}
               />
+
               <InputLabel sx={{ m: "10px" }}>Description *</InputLabel>
               <Controller
                 name="description"
@@ -190,12 +195,10 @@ const CreatePost = ({ setShowCreatePost }) => {
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
                         borderRadius: "14px",
-
                         "& fieldset": {
                           borderRadius: "14px",
                         },
                       },
-                      "& .MuiInputBase-input": {},
                     }}
                     {...field}
                     error={!!errors.description}
@@ -203,23 +206,17 @@ const CreatePost = ({ setShowCreatePost }) => {
                   />
                 )}
               />
-              <Box
-                sx={{
-                  mt: "20px",
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "center",
-                  width: "100%",
-                }}
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={{ mt: "20px", width: "100%" }}
               >
-                <Box
-                  sx={{
-                    mt: "20px",
-                    display: "flex",
-                    gap: "10px",
-                    alignItems: "center",
-                    flexDirection: "column",
-                  }}
+                <Stack
+                  direction="column"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ mt: "20px" }}
                 >
                   <Button
                     component="label"
@@ -227,14 +224,14 @@ const CreatePost = ({ setShowCreatePost }) => {
                     color="primary"
                     sx={{
                       width: "200px",
-                      marginBottom: "15px",
+                      mb: "15px",
                       borderRadius: "15px",
-                      padding: "10px",
+                      p: "10px",
                       height: "35px",
                       px: "30px",
                     }}
                   >
-                    {imagePreview ? "Change Image" : "Upload  Image"}
+                    {imagePreview ? "Change Image" : "Upload Image"}
                     <Controller
                       name="image"
                       control={control}
@@ -254,7 +251,7 @@ const CreatePost = ({ setShowCreatePost }) => {
                       )}
                     />
                   </Button>
-                </Box>
+                </Stack>
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -269,11 +266,15 @@ const CreatePost = ({ setShowCreatePost }) => {
                 ) : (
                   <Box
                     sx={{
-                      marginBottom: "10px",
+                      mb: "10px",
                       height: "150px",
                       width: "100%",
-                      border: `2px solid ${errors.image && !imagePreview ? "red" : "grey"} `,
-                      color: `${errors.image && !imagePreview ? "red" : "#9c9b9a"} `,
+                      border: `2px solid ${
+                        errors.image && !imagePreview ? "red" : "grey"
+                      }`,
+                      color: `${
+                        errors.image && !imagePreview ? "red" : "#9c9b9a"
+                      }`,
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
@@ -284,7 +285,8 @@ const CreatePost = ({ setShowCreatePost }) => {
                     Preview
                   </Box>
                 )}
-              </Box>{" "}
+              </Stack>
+
               {errors.image && !imagePreview && (
                 <FormHelperText
                   sx={{ ml: "15px", fontSize: 14, mb: "10px" }}
@@ -293,7 +295,9 @@ const CreatePost = ({ setShowCreatePost }) => {
                   {errors.image.message}
                 </FormHelperText>
               )}
-              <Box sx={{ display: "flex", alignItems: "center" }}>
+
+              {/* Private Post Switch */}
+              <Stack direction="row" alignItems="center">
                 <Controller
                   name="isPrivate"
                   control={control}
@@ -302,9 +306,12 @@ const CreatePost = ({ setShowCreatePost }) => {
                   )}
                 />
                 <Typography>Private Post</Typography>
-              </Box>
-              <CardActions
-                sx={{ display: "flex", justifyContent: "right", gap: "10px" }}
+              </Stack>
+              <Stack
+                direction="row"
+                justifyContent="flex-end"
+                spacing={2}
+                sx={{ mt: "10px" }}
               >
                 <Button
                   variant="contained"
@@ -322,11 +329,11 @@ const CreatePost = ({ setShowCreatePost }) => {
                 >
                   {isLoading ? "Posting..." : "Post"}
                 </Button>
-              </CardActions>
+              </Stack>
             </form>
           </CardContent>
         </Card>
-      </Box>
+      </Stack>
       <ToastContainer />
     </>
   );

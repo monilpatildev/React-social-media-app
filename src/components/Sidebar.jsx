@@ -1,8 +1,6 @@
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import AppBar from "@mui/material/AppBar";
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -40,12 +38,13 @@ export default function Sidebar() {
     navigate("/users");
   };
   const handleActivity = () => {
-    navigate("/activities");
+    navigate("/follow-request");
   };
   return (
     <>
       {!userIsLoading ? (
         <Box
+        component={"div"}
           sx={{
             display: "flex",
             backgroundColor: "#f0f0f0",
@@ -53,7 +52,7 @@ export default function Sidebar() {
             minHeight: "905px",
           }}
         >
-          <CssBaseline />
+
           <AppBar
             position="fixed"
             sx={{
@@ -79,8 +78,8 @@ export default function Sidebar() {
               },
             }}
           >
-            <Toolbar />
-            <Box sx={{ borderRadius: "24px", marginTop: "50px" }}>
+
+            <Box sx={{ borderRadius: "24px", marginTop: "100px" }}>
               <List sx={{ borderRadius: "24px" }}>
                 <ListItemButton onClick={handleVisitAllUsers}>
                   <ListItemIcon>
