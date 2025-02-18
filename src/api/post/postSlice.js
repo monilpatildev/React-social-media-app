@@ -6,6 +6,7 @@ const initialState = {
   newPost: null,
   searchText: "",
   searchPostsLoading: false,
+  postLists:[]
 };
 
 const postSlice = createSlice({
@@ -24,6 +25,9 @@ const postSlice = createSlice({
     setSearchTextLoading: (state, action) => {
       state.searchPostsLoading = action.payload;
     },
+    setPostLists: (state, action) => {
+      state.postLists = action.payload;
+    },
   },
 });
 
@@ -32,5 +36,6 @@ export const {
   setNewPost,
   setSearchText,
   setSearchTextLoading,
+  setPostLists,
 } = postSlice.actions;
 export default postSlice.reducer;

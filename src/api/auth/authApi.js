@@ -4,7 +4,6 @@ import { setAuthToken } from "./authSlice";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    
     signUpUser: builder.mutation({
       query: (user) => ({
         url: "/auth/signup",
@@ -19,17 +18,16 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: user,
       }),
-      transformResponse:(res)=>{
-        return res?.data
-      },
-      async onQueryStarted(credentials, { dispatch, queryFulfilled }) {
+      onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
+          console.log("signInUser", data.data.token);
           dispatch(setAuthToken(data.data.token));
         } catch (error) {
           dispatch(setAuthToken(null));
         }
       },
+    
     }),
   }),
 });

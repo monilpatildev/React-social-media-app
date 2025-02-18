@@ -114,8 +114,7 @@ const Post = ({ item }) => {
           overflow: !showMore ? "hidden" : "",
           lineBreak: !item.title.includes(" ") ? "anywhere" : "normal",
           wordBreak: "keep-all",
-          minWidth:"780px",
-          maxWidth:"800px"
+
         }}
       >
         {item.title}
@@ -156,7 +155,6 @@ const Post = ({ item }) => {
             wordBreak: "keep-all",
             fontStyle: "italic",
             lineBreak: !item.description.includes(" ") ? "anywhere" : "normal",
-            minWidth:"800px"
           }}
         >
           {(!showMore && item.description.length > 80)

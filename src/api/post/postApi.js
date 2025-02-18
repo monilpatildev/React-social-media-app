@@ -1,15 +1,17 @@
+/* eslint-disable no-unused-vars */
 import { baseApi } from "../baseApi";
+import { setPostLists } from "./postSlice";
+
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    
     getPost: builder.query({
       query: ({ pageSize, pageNumber }) => ({
         url: `posts/get-feed-post?pageSize=${pageSize}&pageNumber=${pageNumber}`,
       }),
       // forceRefetch({ currentArg, previousArg }) {
       //   return currentArg !== previousArg;
-      // },
+      // }
       providesTags: (result, error, { pageNumber }) =>
         result ? [{ type: "GetPost", id: pageNumber }] : ["GetPost"],
     }),

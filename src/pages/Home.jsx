@@ -1,9 +1,40 @@
-
+import CreatePost from "@components/CreatePost";
+import Navbar from "@components/Navbar";
+import PostList from "@components/PostList";
 import Sidebar from "@components/Sidebar";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const Home = () => {
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  useEffect(() => {
+    if (showCreatePost) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [showCreatePost]);
+
   return (
-      <Sidebar></Sidebar>
+    <>
+      <Navbar />
+      
+      <PostList />
+      <Sidebar
+        setShowCreatePost={setShowCreatePost}
+        showCreatePost={showCreatePost}
+      ></Sidebar>
+
+
+      {showCreatePost &&
+        createPortal(
+          <CreatePost
+            setShowCreatePost={setShowCreatePost}
+            showCreatePost={showCreatePost}
+          />,
+          document.body,
+        )}
+    </>
   );
 };
 

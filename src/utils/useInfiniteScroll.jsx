@@ -1,41 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setNewPost } from "../api/post/postSlice";
 
-export default function useInfiniteScroll(queryFunction, pageSize) {
+export default function useInfiniteScroll(queryFunction, pageSize, postLists, setPostLists) {
   const [pageNumber, setPageNumber] = useState(1);
-  const [dataList, setDataList] = useState([]);
   const dispatch = useDispatch();
-
   const searchText = useSelector((state) => state.post.searchText);
+
   const { data, isFetching, isLoading } = queryFunction(
-    {
-      pageSize,
-      pageNumber,
-    },
+    { pageSize, pageNumber },
     {
       skip: searchText,
     },
   );
 
-  const newPost = useSelector((state) => state.post.newPost);
-  const totalPages = Math.ceil(data?.total / pageSize);
-
+  const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 1;
   const throttleTimeout = useRef(null);
 
-  useEffect(() => {
-    if (newPost) {
-      setDataList((prevPosts) => {
-        if (prevPosts.some((post) => post._id === newPost._id)) {
-          return prevPosts;
-        }
-        return [newPost, ...prevPosts];
-      });
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      dispatch(setNewPost(null));
-    }
-  }, [newPost, dispatch]);
-  
   useEffect(() => {
     if (!searchText) {
       const onScroll = () => {
@@ -57,22 +37,21 @@ export default function useInfiniteScroll(queryFunction, pageSize) {
       window.addEventListener("scroll", onScroll);
       return () => window.removeEventListener("scroll", onScroll);
     }
-  }, [isFetching, pageNumber, totalPages]);
+  }, [isFetching, pageNumber, searchText, totalPages]);
 
   useEffect(() => {
     if (!searchText) {
       setPageNumber((prev) => prev);
     }
     if (data?.data?.length) {
-      setDataList((prevPosts) => {
-        const newPosts = data.data.filter(
-          (post) => !prevPosts.some((prevPost) => prevPost._id === post._id),
-        );
-
-        return [...prevPosts, ...newPosts];
-      });
+      const newPosts = data.data.filter(
+        (post) => !postLists.some((prevPost) => prevPost._id === post._id),
+      );
+      if (newPosts.length > 0) {
+        dispatch(setPostLists([...postLists, ...newPosts]));
+      }
     }
-  }, [data]);
+  }, [data, postLists, dispatch, searchText, setPostLists]);
 
-  return { dataList, isLoading, data };
+  return { isLoading, data, postLists };
 }

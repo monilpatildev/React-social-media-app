@@ -19,11 +19,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { ToastContainer, toast } from "react-toastify";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useCreatePostMutation } from "../api/post/postApi";
-import { setNewPost, setSearchText } from "../api/post/postSlice";
+import { setNewPost, setPostLists, setSearchText } from "../api/post/postSlice";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -57,6 +57,8 @@ const validationSchema = Yup.object({
 const CreatePost = ({ setShowCreatePost }) => {
   const [createPost, { isLoading }] = useCreatePostMutation();
   const [imagePreview, setImagePreview] = useState(null);
+  const newPost = useSelector((state) => state.post.newPost);
+  const postLists = useSelector((state) => state.post.postLists);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -76,6 +78,12 @@ const CreatePost = ({ setShowCreatePost }) => {
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (newPost && !postLists.some((post) => post._id === newPost._id)) {
+      dispatch(setPostLists([newPost, ...postLists]));
+    }
+  }, [dispatch, newPost, postLists]);
+
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
@@ -87,10 +95,9 @@ const CreatePost = ({ setShowCreatePost }) => {
         console.log(`${key}:`, value);
       }
       const response = await createPost(formData).unwrap();
-      toast.success("Post created successfully!", { autoClose: 800 });
-      dispatch(setNewPost(response.data));
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       setShowCreatePost(false);
-      navigate(`/`);
+      dispatch(setNewPost(response.data));
       dispatch(setSearchText(""));
     } catch (error) {
       console.log(error);
@@ -130,7 +137,7 @@ const CreatePost = ({ setShowCreatePost }) => {
             p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
-            width: "600px",
+            width: "520px",
             backgroundColor: "#f0f0f0",
           }}
         >

@@ -8,20 +8,25 @@ import { useSelector } from "react-redux";
 import { useGetAllUsersQuery } from "../api/user/userApi";
 import { Link } from "react-router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { setUsersList } from "../api/user/userSlice";
 
 export default function UserList() {
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
+  const prevUserList = useSelector((state) => state.user.usersList);
   const pageSize = 8;
-  const { dataList, isLoading } = useInfiniteScroll(
+  const { postLists: dataList, isLoading } = useInfiniteScroll(
     useGetAllUsersQuery,
     pageSize,
+    prevUserList,
+    setUsersList,
   );
-  const loggedUserData = useSelector((state) => state.user.loggedUserData);
-
-  let usersArray = dataList.filter(
+  
+  const usersArray = dataList.filter(
     (item) =>
       item?.email !== loggedUserData?.email &&
-      item?.username !== loggedUserData?.username,
+    item?.username !== loggedUserData?.username,
   );
+  console.log(usersArray);
   return (
     <>
       <Navbar />
@@ -68,19 +73,24 @@ export default function UserList() {
             )}
           </>
         ) : (
-          <Skeleton
-            variant="rectangular"
-            height={130}
-            sx={{
-              pr: 2,
-              margin: "20px 10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              mx: "400px",
-              borderRadius: "24px",
-            }}
-          />
+          <>
+            {Array.from("12345").map((item, index) => (
+              <Skeleton
+                key={index}
+                variant="rectangular"
+                height={110}
+                sx={{
+                  pr: 2,
+                  margin: "20px 10px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  mx: "400px",
+                  borderRadius: "14px",
+                }}
+              />
+            ))}
+          </>
         )}
       </Box>
     </>

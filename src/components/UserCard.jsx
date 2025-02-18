@@ -55,7 +55,7 @@ const UserCard = ({
   const [followUser] = useFollowUserMutation();
   const [unfollowUser] = useUnfollowUserMutation();
   const [acceptFollowRequest] = useAcceptFollowRequestMutation();
-console.log(isFollowing);
+// console.log(isFollowing);
 
   const handleFollowUser = () => {
     if (isFollowRequestPage) {
@@ -73,6 +73,7 @@ console.log(isFollowing);
       }
     }
   };
+console.log(loggedUserData);
 
   return (
     <>

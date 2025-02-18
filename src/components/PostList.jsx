@@ -3,7 +3,8 @@ import { Skeleton, Typography } from "@mui/material";
 import Post from "./Post";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setPostLists, setSearchTextLoading } from "../api/post/postSlice";
 import { useGetPostQuery, useGetSearchPostQuery } from "../api/post/postApi";
 
 export default function PostList() {
@@ -11,19 +12,21 @@ export default function PostList() {
   const searchPostsLoading = useSelector(
     (state) => state.post.searchPostsLoading,
   );
-
-  
+  const prevPostList = useSelector((state) => state.post.postLists);
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
     searchText,
     { skip: !searchText },
   );
-
-  const pageSize = 2;
-  const { dataList, isLoading: infiniteLoading } = useInfiniteScroll(
+  const dispatch = useDispatch();
+  dispatch(setSearchTextLoading(!!searchLoading));
+  const pageSize = 4;
+  const { postLists: dataList, isLoading: infiniteLoading } = useInfiniteScroll(
     useGetPostQuery,
     pageSize,
+    prevPostList,
+    setPostLists,
   );
-  const posts = searchText ? (searchPosts && searchPosts.data ) : dataList;
+  const posts = searchText ? searchPosts && searchPosts.data : dataList;
   const loading =
     searchPostsLoading || searchLoading || infiniteLoading ? true : false;
 
@@ -31,20 +34,27 @@ export default function PostList() {
     <>
       {loading ? (
         <Box sx={{ textAlign: "center", my: 5 }}>
-          <Skeleton
-            variant="rectangular"
-            height={400}
-            sx={{ margin: "100px 200px", borderRadius: "12px" }}
-          />
-          <Skeleton
-            variant="rectangular"
-            height={400}
-            sx={{ margin: "100px 200px", borderRadius: "12px" }}
-          />
+          {Array.from("1234").map((item, index) => (
+            <Box key={index}>
+              <Skeleton
+                variant="rectangular"
+                height={400}
+                sx={{ margin: "100px 400px", borderRadius: "12px" }}
+              />
+            </Box>
+          ))}
         </Box>
       ) : posts && posts.length > 0 ? (
         posts.map((item) => (
-          <Box key={item._id} sx={{ margin: "200px", my: 5 }}>
+          <Box
+            key={item._id}
+            sx={{
+              margin: "0px 300px",
+              my: 5,
+              zIndex: "10",
+              ml: "350px",
+            }}
+          >
             <Post item={item} />
           </Box>
         ))

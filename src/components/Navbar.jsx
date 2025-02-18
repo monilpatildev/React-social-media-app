@@ -35,9 +35,7 @@ const Navbar = () => {
   const debounceTimeout = useRef(null);
   const searchFromURL = useSearchFromURL();
 
-  const [localSearch, setLocalSearch] = useState(
-    searchFromURL || reduxSearchText || "",
-  );
+  const [localSearch, setLocalSearch] = useState(searchFromURL || "");
 
   const handleSearchText = (e) => {
     const value = e.target.value;
@@ -69,14 +67,17 @@ const Navbar = () => {
     if (!searchFromURL) {
       dispatch(setSearchText(searchFromURL));
     }
+    if (isNavbar) {
+      dispatch(setSearchText(null));
+    }
   }, [searchFromURL]);
 
   const handleHomePage = () => {
-    if(reduxSearchText){
-      navigate(`/?search=${encodeURIComponent(reduxSearchText)}`);
-    }else{
-      navigate("/")
+    if (reduxSearchText) {
+      navigate(`/`);
+      dispatch(setSearchText(null));
     }
+    navigate(`/`);
   };
 
   return (
@@ -103,7 +104,7 @@ const Navbar = () => {
               ml: "20px",
               height: "50px",
               objectFit: "contain",
-              cursor:"pointer"
+              cursor: "pointer",
             }}
           />
         </Typography>

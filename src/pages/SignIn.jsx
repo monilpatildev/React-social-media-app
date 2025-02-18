@@ -51,7 +51,7 @@ export default function SignIn() {
         toast.success("Sign in successfully!", {
           autoClose: 500,
           onClose: () => {
-            Cookies.set("token", response.data.token, { expires: 7 });
+            Cookies.set("token", response.data.data.token, { expires: 7 });
             dispatch(setUserLoggedIn(true));
           },
         });

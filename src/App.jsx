@@ -20,7 +20,7 @@ function App() {
     if (cookie) {
       dispatch(setUserLoggedIn(true));
     } else {
-      dispatch(setUserLoggedIn(false));
+      dispatch(setUserLoggedIn(false)); 
     }
   }, [cookie, dispatch]);
 
