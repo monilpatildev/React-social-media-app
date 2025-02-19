@@ -8,9 +8,8 @@ const AuthProvider = ({ children }) => {
   const [cookie, setCookie] = useState(Cookies.get("token") || null);
 
   useEffect(() => {
-    const isToken = Cookies.get("token");
-    if (isToken ) {
-      setCookie(isToken);
+    if (cookie) {
+      setCookie(cookie);
     }
   }, [cookie]);
 

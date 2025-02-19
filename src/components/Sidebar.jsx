@@ -1,21 +1,33 @@
 /* eslint-disable react/prop-types */
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import { CircularProgress, Tooltip } from "@mui/material";
+
+import {
+  Box,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  CircularProgress,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import { useNavigate } from "react-router-dom";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-
-import { useSelector } from "react-redux";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-export default function Sidebar({ showCreatePost, setShowCreatePost }) {
+export default function Sidebar({
+  showCreatePost,
+  setShowCreatePost,
+  mobileOpen,
+  handleDrawerToggle,
+}) {
   const userIsLoading = useSelector((state) => state.user.userIsLoading);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleAddPost = () => {
     setShowCreatePost(!showCreatePost);
@@ -26,69 +38,73 @@ export default function Sidebar({ showCreatePost, setShowCreatePost }) {
   const handleActivity = () => {
     navigate("/follow-request");
   };
+
+  const drawerContent = (
+    <Box sx={{ borderRadius: "24px", mt: isMobile ? 2 : "100px" }}>
+      <List sx={{ borderRadius: "24px" }}>
+        <ListItemButton onClick={handleVisitAllUsers}>
+          <ListItemIcon>
+            <Tooltip title="All Users">
+              <PeopleAltIcon
+                sx={{ mr: "30px", scale: "1.2", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </ListItemIcon>
+          <ListItemText primary="All Users" />
+        </ListItemButton>
+
+        <ListItemButton onClick={handleAddPost}>
+          <ListItemIcon>
+            <Tooltip title="Create Post">
+              <AddBoxIcon
+                sx={{ mr: "30px", scale: "1.5", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </ListItemIcon>
+          <ListItemText primary="Create Post" />
+        </ListItemButton>
+        <ListItemButton onClick={handleActivity}>
+          <ListItemIcon>
+            <Tooltip title="Follow Requests">
+              <FavoriteIcon
+                sx={{ mr: "30px", scale: "1.5", cursor: "pointer" }}
+              />
+            </Tooltip>
+          </ListItemIcon>
+          <ListItemText primary="Follow Requests" />
+        </ListItemButton>
+      </List>
+    </Box>
+  );
+
   return (
     <>
       {!userIsLoading ? (
-        <>
-          <Drawer
-            variant="permanent"
-            sx={{
-              width: 280,
-
-              [`& .MuiDrawer-paper`]: {
-                width: 280,
-                boxSizing: "border-box",
-                backgroundColor: "#f0f0f0",
-                border: "none",
-                padding: "35px",
-                zIndex: "0",
-              },
-
-            }}
-          >
-            <Box sx={{ borderRadius: "24px", marginTop: "100px" }}>
-              <List sx={{ borderRadius: "24px" }}>
-                <ListItemButton onClick={handleVisitAllUsers}>
-                  <ListItemIcon>
-                    <Tooltip title="All Users">
-                      <PeopleAltIcon
-                        sx={{ mr: "30px", scale: "1.2", cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                  </ListItemIcon>
-                  <ListItemText primary={"All Users"} />
-                </ListItemButton>
-
-                <ListItemButton onClick={handleAddPost}>
-                  <ListItemIcon>
-                    <Tooltip title="Create Post">
-                      <AddBoxIcon
-                        sx={{ mr: "30px", scale: "1.5", cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                  </ListItemIcon>
-                  <ListItemText primary={"Create Post"} />
-                </ListItemButton>
-                <ListItemButton onClick={handleActivity}>
-                  <ListItemIcon>
-                    <Tooltip title="Follow Requests">
-                      <FavoriteIcon
-                        sx={{ mr: "30px", scale: "1.5", cursor: "pointer" }}
-                      />
-                    </Tooltip>
-                  </ListItemIcon>
-                  <ListItemText primary={"Follow Requests"} />
-                </ListItemButton>
-              </List>
-            </Box>
-          </Drawer>
-        </>
+        <Drawer
+          variant={isMobile ? "temporary" : "permanent"}
+          open={isMobile ? mobileOpen : true}
+          onClose={isMobile ? handleDrawerToggle : undefined}
+          sx={{
+            width: isMobile ? 200 : 280,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: {
+              width: isMobile ? 200 : 280,
+              boxSizing: "border-box",
+              backgroundColor: "#f0f0f0",
+              border: "none",
+              padding: isMobile ? "20px" : "35px",
+              zIndex: 0,
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
       ) : (
         <Box
           sx={{
             display: "flex",
             justifyContent: "center",
-            margin: "200px auto",
+            margin: isMobile ? "50px auto" : "200px auto",
             width: "100%",
           }}
         >
@@ -98,3 +114,4 @@ export default function Sidebar({ showCreatePost, setShowCreatePost }) {
     </>
   );
 }
+

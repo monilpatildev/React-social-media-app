@@ -1,57 +1,67 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
 
-export default function useInfiniteScroll(queryFunction, pageSize, postLists, setPostLists) {
+export default function useInfiniteScroll(
+  queryFunction,
+  pageSize,
+  list,
+  setList,
+) {
   const [pageNumber, setPageNumber] = useState(1);
   const dispatch = useDispatch();
   const searchText = useSelector((state) => state.post.searchText);
 
-  const { data, isFetching, isLoading } = queryFunction(
-    { pageSize, pageNumber },
-    {
-      skip: searchText,
-    },
-  );
+  const queryParams = { pageSize, pageNumber };
+  if (searchText) queryParams.searchText = searchText;
+  const location = useLocation();
+  const isNavbar = location.pathname === "/";
+
+  const { data, isFetching, isLoading } = queryFunction(queryParams, {
+    skip: isNavbar && searchText,
+  });
 
   const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 1;
   const throttleTimeout = useRef(null);
 
   useEffect(() => {
-    if (!searchText) {
-      const onScroll = () => {
-        if (throttleTimeout.current) return;
-
-        throttleTimeout.current = setTimeout(() => {
-          throttleTimeout.current = null;
-          const scrolledToBottom =
-            window.innerHeight + window.scrollY + 600 >=
-            document.body.offsetHeight;
-
-          if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
-            console.log("Fetching more data...");
-            setPageNumber((prev) => prev + 1);
-          }
-        }, 300);
-      };
-
-      window.addEventListener("scroll", onScroll);
-      return () => window.removeEventListener("scroll", onScroll);
-    }
-  }, [isFetching, pageNumber, searchText, totalPages]);
+    setPageNumber(1);
+    dispatch(setList([]));
+  }, [searchText, dispatch, setList]);
 
   useEffect(() => {
-    if (!searchText) {
-      setPageNumber((prev) => prev);
-    }
+    const onScroll = () => {
+      if (throttleTimeout.current) return;
+      throttleTimeout.current = setTimeout(() => {
+        throttleTimeout.current = null;
+        const scrolledToBottom =
+          window.innerHeight + window.scrollY + 600 >=
+          document.body.offsetHeight;
+        if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
+          console.log("Fetching more data...");
+          setPageNumber((prev) => prev + 1);
+        }
+      }, 300);
+    };
+
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
+    };
+  }, [isFetching, pageNumber, totalPages]);
+
+  useEffect(() => {
     if (data?.data?.length) {
-      const newPosts = data.data.filter(
-        (post) => !postLists.some((prevPost) => prevPost._id === post._id),
+      const newItems = data.data.filter(
+        (item) => !list.some((existing) => existing._id === item._id),
       );
-      if (newPosts.length > 0) {
-        dispatch(setPostLists([...postLists, ...newPosts]));
+      if (newItems.length > 0) {
+        dispatch(setList([...list, ...newItems]));
       }
     }
-  }, [data, postLists, dispatch, searchText, setPostLists]);
+  }, [data, list, dispatch, setList]);
 
-  return { isLoading, data, postLists };
+  return { isLoading, data, list };
 }
+//

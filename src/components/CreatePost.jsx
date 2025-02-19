@@ -4,7 +4,6 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -16,6 +15,7 @@ import {
   Stack,
   styled,
   Switch,
+  useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { ToastContainer, toast } from "react-toastify";
@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useCreatePostMutation } from "../api/post/postApi";
 import { setNewPost, setPostLists, setSearchText } from "../api/post/postSlice";
+import { useTheme } from "@mui/material/styles";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -40,7 +41,7 @@ const VisuallyHiddenInput = styled("input")`
 const validationSchema = Yup.object({
   title: Yup.string()
     .required("Enter Title")
-    .max(80, "Title not be more than 80 characters")
+    .max(80, "Title must not be more than 80 characters")
     .min(4, "Title must be at least 4 characters"),
   description: Yup.string()
     .required("Enter Description")
@@ -61,6 +62,8 @@ const CreatePost = ({ setShowCreatePost }) => {
   const postLists = useSelector((state) => state.post.postLists);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints?.down("sm"));
 
   const {
     handleSubmit,
@@ -120,6 +123,7 @@ const CreatePost = ({ setShowCreatePost }) => {
           zIndex: (theme) => theme.zIndex.drawer + 2,
         }}
       />
+
       <Stack
         sx={{
           position: "fixed",
@@ -127,6 +131,7 @@ const CreatePost = ({ setShowCreatePost }) => {
           left: "50%",
           transform: "translate(-50%, -50%)",
           zIndex: (theme) => theme.zIndex.drawer + 3,
+          width: { xs: "90%", sm: "520px" },
         }}
         justifyContent="center"
         alignItems="center"
@@ -137,7 +142,7 @@ const CreatePost = ({ setShowCreatePost }) => {
             p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
             borderRadius: "24px",
-            width: "520px",
+            width: "100%",
             backgroundColor: "#f0f0f0",
           }}
         >
@@ -149,13 +154,15 @@ const CreatePost = ({ setShowCreatePost }) => {
               sx={{ mb: "10px" }}
             >
               <Typography
-                gutterBottom
-                sx={{ fontSize: 28, textAlign: "center" }}
+                sx={{
+                  color: "text.secondary",
+                  fontSize: isSmallScreen ? 28 : 38,
+                }}
               >
                 Create Post
               </Typography>
               <CloseIcon
-                sx={{ cursor: "pointer", fontSize: 34 }}
+                sx={{ cursor: "pointer", fontSize: { xs: 28, sm: 34 } }}
                 onClick={() => setShowCreatePost(false)}
               />
             </Stack>
@@ -173,13 +180,9 @@ const CreatePost = ({ setShowCreatePost }) => {
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
                         borderRadius: "14px",
-                        "& fieldset": {
-                          borderRadius: "14px",
-                        },
+                        "& fieldset": { borderRadius: "14px" },
                       },
-                      "& .MuiInputBase-input": {
-                        padding: "15px",
-                      },
+                      "& .MuiInputBase-input": { padding: "15px" },
                     }}
                     {...field}
                     error={!!errors.title}
@@ -187,7 +190,6 @@ const CreatePost = ({ setShowCreatePost }) => {
                   />
                 )}
               />
-
               <InputLabel sx={{ m: "10px" }}>Description *</InputLabel>
               <Controller
                 name="description"
@@ -195,16 +197,14 @@ const CreatePost = ({ setShowCreatePost }) => {
                 render={({ field }) => (
                   <TextField
                     multiline
-                    rows={5}
+                    rows={isSmallScreen ? 3 : 4}
                     placeholder="Enter Description"
                     sx={{
                       width: "100%",
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
                         borderRadius: "14px",
-                        "& fieldset": {
-                          borderRadius: "14px",
-                        },
+                        "& fieldset": { borderRadius: "14px" },
                       },
                     }}
                     {...field}
@@ -230,12 +230,13 @@ const CreatePost = ({ setShowCreatePost }) => {
                     variant="outlined"
                     color="primary"
                     sx={{
-                      width: "200px",
+                      width: isSmallScreen ? "120px" : "200px",
                       mb: "15px",
                       borderRadius: "15px",
-                      p: "10px",
+                      p: "1px",
                       height: "35px",
-                      px: "30px",
+                      px: "10px",
+                      fontSize: "12px",
                     }}
                   >
                     {imagePreview ? "Change Image" : "Upload Image"}
@@ -264,8 +265,8 @@ const CreatePost = ({ setShowCreatePost }) => {
                     src={imagePreview}
                     alt="Preview"
                     style={{
-                      width: "60%",
-                      height: "150px",
+                      width: "100%",
+                      height: isSmallScreen ? "100px" : "150px",
                       objectFit: "cover",
                       borderRadius: "15px",
                     }}
@@ -274,18 +275,13 @@ const CreatePost = ({ setShowCreatePost }) => {
                   <Box
                     sx={{
                       mb: "10px",
-                      height: "150px",
+                      height: isSmallScreen ? "100px" : "150px",
                       width: "100%",
-                      border: `2px solid ${
-                        errors.image && !imagePreview ? "red" : "grey"
-                      }`,
-                      color: `${
-                        errors.image && !imagePreview ? "red" : "#9c9b9a"
-                      }`,
+                      border: `2px dashed ${errors.image && !imagePreview ? "red" : "grey"}`,
+                      color: `${errors.image && !imagePreview ? "red" : "#9c9b9a"}`,
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      borderStyle: "dashed",
                       borderRadius: "15px",
                     }}
                   >

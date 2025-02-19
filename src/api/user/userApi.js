@@ -46,10 +46,9 @@ export const userApi = baseApi.injectEndpoints({
     }),
 
     getAllUsers: builder.query({
-      query: ({ pageSize, pageNumber }) => ({
-        url: `users/get-all-users?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+      query: ({ pageSize, pageNumber, searchText }) => ({
+        url: `users/get-all-users?searchText=${searchText}&pageSize=${pageSize}&pageNumber=${pageNumber}`,
       }),
-
       providesTags: ["GetAllUsers"],
     }),
   }),

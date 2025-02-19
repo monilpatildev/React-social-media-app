@@ -8,7 +8,7 @@ export const followApi = baseApi.injectEndpoints({
         method: "POST",
         body: id,
       }),
-      invalidatesTags: ["GetLoginUser", "FollowRequest"],
+      invalidatesTags: ["GetLoginUser", "FollowRequest", "GetAllUsers"],
     }),
 
     unfollowUser: builder.mutation({
@@ -17,7 +17,7 @@ export const followApi = baseApi.injectEndpoints({
         method: "POST",
         body: id,
       }),
-      invalidatesTags: ["GetLoginUser", "FollowRequest"],
+      invalidatesTags: ["GetLoginUser", "FollowRequest", "GetAllUsers"],
     }),
 
     getFollowRequest: builder.query({

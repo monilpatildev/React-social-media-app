@@ -13,11 +13,6 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: [
-    "GetLoginUser",
-    "GetPost",
-    "GetAllUsers",
-    "FollowRequest",
-  ],
+  tagTypes: ["GetLoginUser", "GetPost", "GetAllUsers", "FollowRequest"],
   endpoints: () => ({}),
 });

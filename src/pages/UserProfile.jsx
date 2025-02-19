@@ -1,38 +1,39 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import EditProfile from "@components/EditProfile";
-import Navbar from "@components/Navbar";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useParams, useLocation, useNavigate, Link } from "react-router";
 import {
   Box,
   Button,
-  CardContent,
   CircularProgress,
   Divider,
-  Stack,
   Typography,
+  Stack,
+  Avatar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import GridViewIcon from "@mui/icons-material/GridView";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import EditProfile from "@components/EditProfile";
+import DeleteUserForm from "@components/DeleteUserForm";
+import Navbar from "@components/Navbar";
 import { useSelector, useDispatch } from "react-redux";
-import profileBg from "../assets/logo.png";
-import { useParams, useLocation, useNavigate, Link } from "react-router";
 import { useGetLoggedUserQuery, useGetUserQuery } from "../api/user/userApi";
 import { setLoggedUserData } from "../api/user/userSlice";
-import PersonIcon from "@mui/icons-material/Person";
-import DeleteUserForm from "@components/DeleteUserForm";
-import LockIcon from "@mui/icons-material/Lock";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import profileBg from "../assets/logo.png";
 
-const UserProfile = ()=> {
-  const loggedUserData = useSelector((state) => state.user.loggedUserData);
-  const [editForm, setEditForm] = useState(false);
-  const [deleteUserForm, setDeleteUserForm] = useState(false);
+const UserProfile = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints?.down("sm"));
 
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const { data: loggedUser, isLoading: loggedUserLoading } =
     useGetLoggedUserQuery();
   const { data: user, isLoading: userLoading } = useGetUserQuery(id, {
@@ -52,25 +53,10 @@ const UserProfile = ()=> {
     } else {
       dispatch(setLoggedUserData(null));
     }
-  }, [dispatch, id, location.pathname, loggedUser]);
+  }, [dispatch, id, location.pathname, loggedUser, navigate]);
 
   const isProfilePage = location.pathname === "/profile";
   const profileData = isProfilePage ? loggedUserData : user;
-
-  if ((isProfilePage && loggedUserLoading) || (!isProfilePage && userLoading)) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          margin: "200px auto",
-          width: "100%",
-        }}
-      >
-        <CircularProgress color="inherit" />
-      </Box>
-    );
-  }
 
   const handleFollowersPage = () => {
     if (id) {
@@ -88,257 +74,201 @@ const UserProfile = ()=> {
     }
   };
 
+  const [editForm, setEditForm] = useState(false);
+  const [deleteUserForm, setDeleteUserForm] = useState(false);
+
+  if ((isProfilePage && loggedUserLoading) || (!isProfilePage && userLoading)) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+        <CircularProgress color="inherit" />
+      </Box>
+    );
+  }
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+  
   return (
     <>
       <Navbar />
-      <Button sx={{ ml: "24px", fontSize: "24px" ,position:"fixed"}}>
-        <Link to={-1}>
-          {" "}
-          <ArrowBackIcon sx={{ mr: "5px" }} /> Back{" "}
-        </Link>
-      </Button>
-      {profileData ? (
-        <>
-          <Stack direction="column" spacing={2} mx={50} p={5}>
-            <Typography sx={{ color: "text.secondary", fontSize: 32 }}>
-              {isProfilePage ? "Your Profile" : "User Profile"}
-            </Typography>
-            <Stack
-              spacing={2}
-              borderRadius={8}
-              p={5}
-              my={10}
-              boxShadow={"1px 0px 10px rgba(0,0,0,0.3)"}
-              bgcolor={"white"}
-            >
-              <Stack
-                direction="row"
-                spacing={2}
-                sx={{
-                  justifyContent: "center",
-                  borderRadius: "24px",
-                  alignItems: "center",
-                }}
-              >
-                <Stack
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  sx={{
-                    boxShadow: "1px 0px 10px rgba(0,0,0,0.2)",
-                    borderRadius: "28px",
-                    backgroundColor: "rgba(0, 255, 255, 0.1)",
-                    width: "100px",
-                    height: "100px",
-                  }}
-                >
-                  <Typography sx={{ color: "text.secondary", fontSize: 38 }}>
-                    {profileData?.firstname?.[0]?.toUpperCase()}
-                    {profileData?.lastname?.[0]?.toUpperCase()}
-                  </Typography>
-                </Stack>
-                <Stack width={"100%"} alignItems={"end"}>
-                  <img
-                    src={profileBg}
-                    alt="Profile Background"
-                    style={{
-                      objectFit: "cover",
-                      height: "100px",
-                      width: "280px",
-                      borderRadius: "24px",
-                    }}
-                  />
-                </Stack>
-              </Stack>
-              <Divider sx={{ mb: "15px" }} />
-              <Stack
-                spacing={2}
-                justifyContent={"center"}
-                alignItems={"center"}
-              >
-                <Box
-                  sx={{
-                    padding: "25px",
-                  }}
-                >
-                  <Stack
-                    direction={"row"}
-                    justifyContent={"start"}
-                    alignItems={"center"}
-                  >
-                    <PersonIcon sx={{ color: "grey" }} />
-                    <Typography
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: 32,
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        maxWidth: "650px",
-                        ml: "10px",
-                      }}
-                    >
-                      {profileData?.firstname} {profileData?.lastname}
-                    </Typography>
-                  </Stack>
-                  <Stack
-                    direction={"row"}
-                    justifyContent={"start"}
-                    alignItems={"center"}
-                  >
-                    <DriveFileRenameOutlineIcon sx={{ color: "grey" }} />
-                    <Typography
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: 18,
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        maxWidth: "650px",
-                        ml: "10px",
-                      }}
-                    >
-                      {profileData?.username}
-                    </Typography>
-                  </Stack>{" "}
-                  <Stack
-                    direction={"row"}
-                    justifyContent={"start"}
-                    alignItems={"center"}
-                  >
-                    <LockIcon sx={{ color: "grey" }} />
-                    <Typography
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: 18,
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        maxWidth: "650px",
-                        ml: "10px",
-                      }}
-                    >
-                      {profileData?.isPrivate
-                        ? "Private Account"
-                        : "Public Account"}
-                    </Typography>{" "}
-                  </Stack>
-                </Box>
-                <Box
-                  sx={{
-                    width: "50%",
-                    display: "flex",
-                    flexDirection: "column",
-                    textAlign: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Typography
-                      gutterBottom
-                      onClick={handleFollowingPage}
-                      sx={{
-                        color: "text.primary",
-                        width: "100%",
-                        fontSize: 24,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <PeopleAltIcon sx={{ mr: "10px", color: "grey" }} />
-                      {profileData?.totalFollowing}
-                    </Typography>
-                    <Typography
-                      gutterBottom
-                      onClick={handleFollowersPage}
-                      sx={{
-                        color: "text.primary",
-                        width: "100%",
-                        fontSize: 24,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <PeopleAltIcon sx={{ mr: "10px", color: "grey" }} />
-                      {profileData?.totalFollower}
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "text.primary",
-                        fontSize: 18,
-                        fontWeight: "600",
-                        width: "100%",
-                      }}
-                    >
-                      Following
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        color: "text.primary",
-                        fontSize: 18,
-                        fontWeight: "600",
-                        width: "100%",
-                      }}
-                    >
-                      Followers
-                    </Typography>
-                  </Box>
-                </Box>
-              </Stack>
-              {isProfilePage && (
-                <CardContent sx={{ width: "100%" }}>
-                  <Typography
-                    sx={{
-                      color: "text.secondary",
-                      fontSize: 16,
-                      display: "flex",
-                      justifyContent: "space-around",
-                      margin: "20px",
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={() => setDeleteUserForm(true)}
-                      color="error"
-                    >
-                      Delete Account
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => setEditForm(true)}
-                    >
-                      Edit Profile
-                    </Button>
-                  </Typography>
-                </CardContent>
-              )}{" "}
-            </Stack>
-          </Stack>
-        </>
-      ) : (
-        <Box
-          sx={{
+      <Button
+        sx={{
+          position: "fixed",
+          top: theme.spacing(12),
+          left: theme.spacing(3),
+          fontSize: "24px",
+          zIndex: 1100,
+        }}
+        variant="text"
+      >
+        <Link
+          to={-1}
+          style={{
+            textDecoration: "none",
             display: "flex",
-            justifyContent: "center",
-            margin: "200px auto",
-            width: "100%",
+            alignItems: "center",
+            color: "inherit",
           }}
         >
+          <ArrowBackIcon sx={{ mr: "5px" }} /> Back
+        </Link>
+      </Button>
+
+      {profileData ? (
+        <Box
+          sx={{
+            maxWidth: 900,
+            mx: isSmallScreen ? "35px" : "auto",
+            mt: 10,
+            mb: 4,
+            bgcolor: "background.paper",
+            boxShadow: 3,
+            borderRadius: 3,
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              height: isSmallScreen ? 100 : 180,
+              p: "20px",
+              backgroundImage: `url(${profileBg})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundColor: "black",
+              m: "20px",
+              borderRadius: 3,
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+
+          <Avatar
+            src={profileData?.profilePictureUrl || ""}
+            sx={{
+              width: isSmallScreen ? 80 : 100,
+              height: isSmallScreen ? 80 : 100,
+              border: "4px solid white",
+              position: "absolute",
+              top: isSmallScreen ? 225 : 320,
+              left: "50%",
+              transform: "translateX(-50%)",
+              backgroundColor: "grey.300",
+              fontSize: "3rem",
+            }}
+          >
+            {profileData?.firstname?.[0]?.toUpperCase()}
+            {profileData?.lastname?.[0]?.toUpperCase()}
+          </Avatar>
+
+          <Box sx={{ mt: isSmallScreen ? 3 : 5, p: 3, textAlign: "center" }}>
+            <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+              {capitalize(profileData?.firstname)}{" "}
+              {capitalize(profileData?.lastname)}
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary">
+              {profileData?.username} •{" "}
+              {profileData?.isPrivate ? "Private Account" : "Public Account"}
+            </Typography>{" "}
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              sx={{ mb: 2 }}
+            >
+              {profileData?.email}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Stack
+              direction="row"
+              justifyContent="center"
+              spacing={4}
+              sx={{ mb: 2 }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleFollowingPage}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  minWidth: 120,
+                }}
+              >
+                <PeopleAltIcon sx={{ fontSize: 30, mb: 1 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                  {profileData?.totalFollowing}
+                </Typography>
+                <Typography variant="caption">Following</Typography>
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleFollowersPage}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  minWidth: 120,
+                }}
+              >
+                <PeopleAltIcon sx={{ fontSize: 30, mb: 1 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                  {profileData?.totalFollower}
+                </Typography>
+                <Typography variant="caption">Followers</Typography>
+              </Button>
+            </Stack>
+            {isProfilePage && (
+              <Stack
+                direction="row"
+                justifyContent="center"
+                spacing={2}
+                sx={{ mt: 3 }}
+              >
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => setDeleteUserForm(true)}
+                >
+                  Delete Account
+                </Button>
+                <Button variant="contained" onClick={() => setEditForm(true)}>
+                  Edit Profile
+                </Button>
+              </Stack>
+            )}
+            {/* Bottom Section: Posts, Likes & Saves */}
+            <Divider sx={{ my: 3 }} />
+            <Stack direction="row" justifyContent="center" spacing={4}>
+              <Stack alignItems="center">
+                <GridViewIcon sx={{ fontSize: 30, color: "text.secondary" }} />
+                <Typography variant="caption">Posts</Typography>
+              </Stack>
+              <Stack alignItems="center">
+                <FavoriteBorderIcon
+                  sx={{ fontSize: 30, color: "text.secondary" }}
+                />
+                <Typography variant="caption">Likes</Typography>
+              </Stack>
+              <Stack alignItems="center">
+                <BookmarkBorderIcon
+                  sx={{ fontSize: 30, color: "text.secondary" }}
+                />
+                <Typography variant="caption">Saves</Typography>
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
           <CircularProgress color="inherit" />
         </Box>
       )}
+
+      {/* Portals for modals */}
       {editForm &&
         createPortal(
           <EditProfile

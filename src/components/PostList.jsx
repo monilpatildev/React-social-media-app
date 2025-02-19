@@ -1,11 +1,12 @@
-import Box from "@mui/material/Box";
-import { Skeleton, Typography } from "@mui/material";
+import { useEffect } from "react";
+import { Box, Skeleton, Typography, Grid, useMediaQuery } from "@mui/material";
 import Post from "./Post";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
-
 import { useDispatch, useSelector } from "react-redux";
 import { setPostLists, setSearchTextLoading } from "../api/post/postSlice";
 import { useGetPostQuery, useGetSearchPostQuery } from "../api/post/postApi";
+import { useTheme } from "@mui/material/styles";
+import { useLocation } from "react-router";
 
 export default function PostList() {
   const searchText = useSelector((state) => state.post.searchText);
@@ -13,64 +14,80 @@ export default function PostList() {
     (state) => state.post.searchPostsLoading,
   );
   const prevPostList = useSelector((state) => state.post.postLists);
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const isNavbar = location.pathname === "/";
+  console.log(isNavbar);
+  
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
-    searchText,
+    isNavbar ? searchText :"",
     { skip: !searchText },
   );
-  const dispatch = useDispatch();
-  dispatch(setSearchTextLoading(!!searchLoading));
-  const pageSize = 4;
-  const { postLists: dataList, isLoading: infiniteLoading } = useInfiniteScroll(
+
+  useEffect(() => {
+    dispatch(setSearchTextLoading(!!searchLoading));
+  }, [dispatch, searchLoading]);
+
+  const pageSize = 2;
+  const { list: dataList, isLoading: infiniteLoading } = useInfiniteScroll(
     useGetPostQuery,
     pageSize,
     prevPostList,
     setPostLists,
   );
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints?.down("sm"));
+
   const posts = searchText ? searchPosts && searchPosts.data : dataList;
-  const loading =
-    searchPostsLoading || searchLoading || infiniteLoading ? true : false;
+  const loading = searchPostsLoading || searchLoading || infiniteLoading;
+console.log(dataList);
+
 
   return (
     <>
-      {loading ? (
-        <Box sx={{ textAlign: "center", my: 5 }}>
-          {Array.from("1234").map((item, index) => (
-            <Box key={index}>
-              <Skeleton
-                variant="rectangular"
-                height={400}
-                sx={{ margin: "100px 400px", borderRadius: "12px" }}
-              />
-            </Box>
-          ))}
-        </Box>
-      ) : posts && posts.length > 0 ? (
-        posts.map((item) => (
-          <Box
-            key={item._id}
-            sx={{
-              margin: "0px 300px",
-              my: 5,
-              zIndex: "10",
-              ml: "350px",
-            }}
-          >
-            <Post item={item} />
-          </Box>
-        ))
-      ) : (
-        <Typography
-          gutterBottom
-          sx={{
-            color: "text.secondary",
-            margin: "100px",
-            textAlign: "center",
-            fontSize: 38,
-          }}
-        >
-          No post available
-        </Typography>
-      )}
+      <Box sx={{ flexGrow: 1, p: 2, ml: isSmallScreen ? "0px" : "400px" }}>
+        <Grid container spacing={2}>
+          {loading ? (
+            <>
+              {Array.from("1234").map((_, index) => (
+                <Grid item key={index} width={"81%"}>
+                  <Skeleton
+                    variant="rectangular"
+                    height={400}
+                    sx={{ borderRadius: "12px", mb: "20px" }}
+                  />
+                </Grid>
+              ))}
+            </>
+          ) : (
+            <>
+              {" "}
+              {posts && posts.length > 0 ? (
+                <>
+                  {posts.map((item) => (
+                    <Grid item key={item._id} mt={4}>
+                      <Post item={item} />
+                    </Grid>
+                  ))}
+                </>
+              ) : (
+                <Typography
+                  gutterBottom
+                  sx={{
+                    color: "text.secondary",
+                    margin: "100px",
+                    textAlign: "center",
+                    fontSize: { xs: "24px", md: "38px" },
+                    ml: "400px",
+                  }}
+                >
+                  No post available
+                </Typography>
+              )}
+            </>
+          )}
+        </Grid>
+      </Box>
     </>
   );
 }

@@ -8,6 +8,9 @@ import {
   TextField,
   Button,
   InputLabel,
+  ThemeProvider,
+  createTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
@@ -16,6 +19,23 @@ import logo from "../assets/logo.png";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSignUpUserMutation } from "../api/auth/authApi";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#FFCA28",
+    },
+  },
+  typography: {
+    h4: {
+      fontSize: "2rem",
+      fontWeight: 600,
+    },
+    body2: {
+      fontSize: "1rem",
+    },
+  },
+});
 
 const validationSchema = Yup.object({
   firstname: Yup.string()
@@ -51,9 +71,11 @@ const inputFieldArray = [
     type: "password",
   },
 ];
+
 export default function SignUp() {
   const navigate = useNavigate();
   const [signUpUser] = useSignUpUserMutation();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const {
     register,
@@ -83,10 +105,8 @@ export default function SignUp() {
     }
   };
 
-
-
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Box
         sx={{
           minHeight: "100vh",
@@ -101,17 +121,17 @@ export default function SignUp() {
           variant="outlined"
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
+            flexDirection: isSmallScreen ? "column" : "row",
             maxWidth: 900,
-            borderRadius: "48px",
+            borderRadius: "24px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             overflow: "hidden",
             backgroundImage:
               "linear-gradient(-120deg,rgba(255, 255, 255,0.3),rgba(245, 245, 174,0.3))",
           }}
         >
-          <CardContent sx={{ width: { md: 400 }, p: 4 }}>
-            <Typography variant="h4" sx={{ mb: 3, textAlign: "center" }}>
+          <CardContent sx={{ width: isSmallScreen ? "100%" : 400, p: 4 }}>
+            <Typography variant="h4" sx={{ mb: 1, textAlign: "center" }}>
               Sign Up
             </Typography>
 
@@ -131,8 +151,8 @@ export default function SignUp() {
                       width: "100%",
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "white",
-                        borderRadius: "48px",
-                        "& fieldset": { borderRadius: "48px" },
+                        borderRadius: "24px",
+                        "& fieldset": { borderRadius: "24px" },
                       },
                       "& .MuiInputBase-input": { padding: "10px" },
                     }}
@@ -147,7 +167,7 @@ export default function SignUp() {
                 sx={{
                   py: 1.5,
                   mt: 2,
-                  borderRadius: "48px",
+                  borderRadius: "24px",
                   backgroundColor: "#FFCA28",
                   color: "black",
                 }}
@@ -173,28 +193,30 @@ export default function SignUp() {
             </CardActions>
           </CardContent>
 
-          <CardContent
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              p: 4,
-            }}
-          >
-            <Box
-              component="img"
-              src={logo}
-              alt="logo"
+          {!isSmallScreen && (
+            <CardContent
               sx={{
-                width: { xs: 250, md: 350 },
-                height: { xs: 250, md: 350 },
-                objectFit: "contain",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                p: 4,
               }}
-            />
-          </CardContent>
+            >
+              <Box
+                component="img"
+                src={logo}
+                alt="logo"
+                sx={{
+                  width: { xs: 200, md: 350 },
+                  height: { xs: 200, md: 350 },
+                  objectFit: "contain",
+                }}
+              />
+            </CardContent>
+          )}
         </Card>
       </Box>
       <ToastContainer />
-    </>
+    </ThemeProvider>
   );
 }
