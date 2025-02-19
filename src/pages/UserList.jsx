@@ -24,13 +24,12 @@ export default function UserList() {
   const prevUserList = useSelector((state) => state.user.usersList);
   const pageSize = 8;
 
-  const { list: usersArray, isLoading } = useInfiniteScroll(
+  const { list: usersArray,data, isLoading } = useInfiniteScroll(
     useGetAllUsersQuery,
     pageSize,
     prevUserList,
     setUsersList,
   );
-
 
   return (
     <>
@@ -74,7 +73,7 @@ export default function UserList() {
               <Grid container spacing={2}>
                 {usersArray.map((item, index) => (
                   <Grid item xs={12} key={index}>
-                    <UserCard item={item} />
+                    <UserCard item={item} data={data} />
                   </Grid>
                 ))}
               </Grid>

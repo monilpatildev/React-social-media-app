@@ -58,9 +58,26 @@ export default function useInfiniteScroll(
       );
       if (newItems.length > 0) {
         dispatch(setList([...list, ...newItems]));
+      } else {
+        let updatedList = [...list];
+        data.data.forEach((newItem) => {
+          const index = updatedList.findIndex(
+            (existing) => existing._id === newItem._id,
+          );
+          if (
+            index !== -1 &&
+            updatedList[index].isFollowing !== newItem.isFollowing
+          ) {
+            updatedList[index] = newItem;
+          }
+        });
+        if (JSON.stringify(updatedList) !== JSON.stringify(list)) {
+          dispatch(setList(updatedList));
+        }
       }
     }
   }, [data, list, dispatch, setList]);
+
 
   return { isLoading, data, list };
 }

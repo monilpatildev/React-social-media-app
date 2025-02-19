@@ -11,7 +11,6 @@ import { useGetUserQuery } from "../api/user/userApi";
 import { useLocation } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
-import { useState } from "react";
 
 const UserCard = ({
   item,
@@ -19,12 +18,13 @@ const UserCard = ({
   isLoggedUserFollowingPage,
   isUsersFollowerPage,
   isUsersFollowingPage,
+  // data
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const location = useLocation();
-  const [requested, setRequested] = useState(false);
+
   const isFollowRequestPage = location.pathname === "/follow-request";
   const isAllUsersPage = location.pathname === "/users";
 
@@ -47,6 +47,7 @@ const UserCard = ({
 
   const followRequestPageUsers = isFollowRequestPage && requestedUser;
   const allUsersPageUsers = isAllUsersPage && item;
+  // console.log(data.data.map((dataUser) => dataUser.isFollowing === item.isFollowing));
 
   const user =
     isLoggedUserFollowerPage ||
@@ -70,20 +71,13 @@ const UserCard = ({
       });
     } else {
       if (!isFollowing) {
-        const res = await followUser({ id: item._id });
-        console.log(res.data.success);
-
-        setRequested(true);
-        // console.log(setRequested(res.data.success));
-        console.log(requested);
-        
+        await followUser({ id: item._id });
       } else {
-        const res = await unfollowUser({ id: item._id });
-        console.log(res);
+        await unfollowUser({ id: item._id });
       }
     }
   };
-  // console.log(item);
+  console.log(item);
 
   return (
     <>
@@ -176,19 +170,13 @@ const UserCard = ({
                   : user?.isPrivate
                     ? !user?.isFollowing && !user?.isAccepted
                       ? "primary"
-                      : user?.isFollowing && !user?.isAccepted
-                        ? "secondary"
-                        : isFollowing
-                          ? "default"
-                          : "primary"
+                      : ""
                     : isFollowing
                       ? "default"
                       : "primary"
               }
               disabled={
-                user?.isPrivate &&
-                (!requested || user?.isFollowing) &&
-                !user?.isAccepted
+                user?.isPrivate && user?.isFollowing && !user?.isAccepted
                   ? true
                   : false
               }
@@ -200,7 +188,7 @@ const UserCard = ({
                 : item?.isPrivate
                   ? !item?.isFollowing && !item?.isAccepted
                     ? "Follow"
-                    : (requested || item?.isFollowing) && !item?.isAccepted
+                    : item?.isFollowing && !item?.isAccepted
                       ? "Requested"
                       : isFollowing
                         ? "Unfollow"
