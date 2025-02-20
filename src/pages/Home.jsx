@@ -7,24 +7,20 @@ import { createPortal } from "react-dom";
 
 const Home = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
+  
   useEffect(() => {
-    if (showCreatePost) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = showCreatePost ? "hidden" : "auto";
   }, [showCreatePost]);
 
   return (
     <>
       <Navbar />
-      
+
       <PostList />
       <Sidebar
         setShowCreatePost={setShowCreatePost}
         showCreatePost={showCreatePost}
       ></Sidebar>
-
 
       {showCreatePost &&
         createPortal(

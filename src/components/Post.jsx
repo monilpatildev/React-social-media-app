@@ -16,10 +16,12 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SendIcon from "@mui/icons-material/Send";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { useState } from "react";
+import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 
 const Post = ({ item }) => {
   const [showMore, setShowMore] = useState(false);
   const [showPostImage, setShowPostImage] = useState(false);
+  const [saveBtn ,setSaveBtn]= useState(false)
 
   const { data: postImage } = useGetImageQuery(item.media_id);
   const { data: user, isLoading: userLoading } = useGetUserQuery(item.userId);
@@ -61,8 +63,7 @@ const Post = ({ item }) => {
         backgroundColor: "white",
         p: isSmallScreen ? "20px" : "30px",
         px: isSmallScreen ? "20px" : "50px",
-        width:isSmallScreen?"100%":"1200px",
-        mb:"20px"
+        mb: isSmallScreen ? "0px" : "20px",
       }}
       spacing={2}
     >
@@ -113,28 +114,48 @@ const Post = ({ item }) => {
             {formatDate(item)}
           </Typography>
         </Stack>
-        <BookmarkBorderIcon sx={{ fontSize: isSmallScreen ? "28px" : "34px" }} />
+        {!saveBtn ? (
+          <BookmarkBorderIcon
+            onClick={() => setSaveBtn(!saveBtn)}
+            sx={{
+              color: "text.secondary",
+              fontSize: isSmallScreen ? "28px" : "34px",
+              cursor: "pointer",
+            }}
+          />
+        ) : (
+          <BookmarkRoundedIcon
+            onClick={() => setSaveBtn(!saveBtn)}
+            sx={{
+              color: "text.secondary",
+              fontSize: isSmallScreen ? "28px" : "34px",
+              cursor: "pointer",
+            }}
+          />
+        )}
       </Stack>
       <Typography
         variant="body2"
-        fontSize={isSmallScreen ? 18 : 28}
+        fontSize={isSmallScreen ? 14 : 28}
         sx={{
-          textOverflow: !showMore ? "ellipsis" : "unset",
-          whiteSpace: !showMore ? "nowrap" : "normal",
-          overflow: !showMore ? "hidden" : "visible",
-          lineBreak: !item.title.includes(" ") ? "normal" : "anywhere",
+          display: "block",
           wordBreak: "keep-all",
+          lineBreak: item.title.includes(" ") ? "normal" : "anywhere",
         }}
       >
-        {item.title}
+        {!showMore && item.title.length > 80
+          ? item.title.slice(0, 80)
+          : item.title}
+        {!showMore && item.title.length > 80 && "..."}{" "}
       </Typography>
       <Stack>
         {postImage ? (
           <img
             style={{
-              height: isSmallScreen ? 300 : 600,
+              height: isSmallScreen ? 250 : 600,
               objectFit: !showPostImage ? "cover" : "contain",
               borderRadius: "24px",
+              width: "inherit",
             }}
             onClick={() => setShowPostImage(!showPostImage)}
             alt={item.title}
@@ -148,7 +169,12 @@ const Post = ({ item }) => {
           />
         )}
       </Stack>
-      <Stack direction="row" alignItems="flex-start" spacing={isSmallScreen ? 2 : 3}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={isSmallScreen ? 2 : 3}
+        justifyContent={"flex-start"}
+      >
         <FavoriteBorderIcon
           sx={{
             color: "grey",
@@ -169,22 +195,31 @@ const Post = ({ item }) => {
             fontSize: isSmallScreen ? "28px" : "32px",
             cursor: "pointer",
           }}
-        />
-      </Stack>
-      <Box component="span" sx={{ mt: "10px", display: "inline" }}>
+        />{" "}
         <Typography
           variant="caption"
-          fontSize={isSmallScreen ? 16 : 24}
+          fontSize={isSmallScreen ? 14 : 20}
+          sx={{
+            color: "text.secondary",
+          }}
+        >
+          (Features coming soon...)
+        </Typography>
+      </Stack>
+      <Box component="span" sx={{ mt: "10px" }}>
+        <Typography
+          variant="caption"
+          fontSize={isSmallScreen ? 14 : 24}
           sx={{
             display: "block",
             color: "text.secondary",
             wordBreak: "keep-all",
             fontStyle: "italic",
             lineBreak: item.description.includes(" ") ? "normal" : "anywhere",
-            
+            width: "inherit",
           }}
         >
-          {(!showMore && item.description.length > 80)
+          {!showMore && item.description.length > 80
             ? item.description.slice(0, 80)
             : item.description}
           {!showMore && item.description.length > 80 && "..."}{" "}
@@ -211,4 +246,3 @@ const Post = ({ item }) => {
 };
 
 export default Post;
-

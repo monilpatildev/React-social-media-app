@@ -17,31 +17,31 @@ export default function PostList() {
   const dispatch = useDispatch();
   const location = useLocation();
   const isNavbar = location.pathname === "/";
-  console.log(isNavbar);
-  
+
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
-    isNavbar ? searchText :"",
-    { skip: !searchText },
+    isNavbar ? searchText : "",
+    { skip: !searchText, refetchOnMountOrArgChange: true },
   );
 
   useEffect(() => {
-    dispatch(setSearchTextLoading(!!searchLoading));
+    dispatch(setSearchTextLoading(searchLoading));
   }, [dispatch, searchLoading]);
 
-  const pageSize = 2;
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isBiggerScreen= useMediaQuery(theme.breakpoints.down("xl"));
+
+  const pageSize = isBiggerScreen ? 2 : 4;
+
   const { list: dataList, isLoading: infiniteLoading } = useInfiniteScroll(
     useGetPostQuery,
     pageSize,
     prevPostList,
     setPostLists,
   );
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints?.down("sm"));
 
   const posts = searchText ? searchPosts && searchPosts.data : dataList;
   const loading = searchPostsLoading || searchLoading || infiniteLoading;
-console.log(dataList);
-
 
   return (
     <>
@@ -50,10 +50,10 @@ console.log(dataList);
           {loading ? (
             <>
               {Array.from("1234").map((_, index) => (
-                <Grid item key={index} width={"81%"}>
+                <Grid item xs={12} sm={11} key={index} mt={5}>
                   <Skeleton
                     variant="rectangular"
-                    height={400}
+                    height={500}
                     sx={{ borderRadius: "12px", mb: "20px" }}
                   />
                 </Grid>
@@ -61,11 +61,16 @@ console.log(dataList);
             </>
           ) : (
             <>
-              {" "}
               {posts && posts.length > 0 ? (
                 <>
                   {posts.map((item) => (
-                    <Grid item key={item._id} mt={4}>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={11}
+                      key={item._id}
+                      mt={isSmallScreen ? 1 : 4}
+                    >
                       <Post item={item} />
                     </Grid>
                   ))}
@@ -75,10 +80,10 @@ console.log(dataList);
                   gutterBottom
                   sx={{
                     color: "text.secondary",
-                    margin: "100px",
+                    margin: "100px auto",
                     textAlign: "center",
                     fontSize: { xs: "24px", md: "38px" },
-                    ml: "400px",
+                    ml: isSmallScreen ? "" : "400px",
                   }}
                 >
                   No post available

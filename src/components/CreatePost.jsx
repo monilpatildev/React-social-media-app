@@ -82,6 +82,7 @@ const CreatePost = ({ setShowCreatePost }) => {
   });
 
   useEffect(() => {
+
     if (newPost && !postLists.some((post) => post._id === newPost._id)) {
       dispatch(setPostLists([newPost, ...postLists]));
     }
@@ -141,7 +142,7 @@ const CreatePost = ({ setShowCreatePost }) => {
           sx={{
             p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
-            borderRadius: "24px",
+            borderRadius: "14px",
             width: "100%",
             backgroundColor: "#f0f0f0",
           }}

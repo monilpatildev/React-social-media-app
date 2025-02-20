@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -25,33 +26,38 @@ export default function useInfiniteScroll(
   const throttleTimeout = useRef(null);
 
   useEffect(() => {
-    setPageNumber(1);
-    dispatch(setList([]));
+    if (!isNavbar) {
+      dispatch(setList([]));
+    }
   }, [searchText, dispatch, setList]);
 
   useEffect(() => {
-    const onScroll = () => {
-      if (throttleTimeout.current) return;
-      throttleTimeout.current = setTimeout(() => {
-        throttleTimeout.current = null;
-        const scrolledToBottom =
-          window.innerHeight + window.scrollY + 600 >=
-          document.body.offsetHeight;
-        if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
-          console.log("Fetching more data...");
-          setPageNumber((prev) => prev + 1);
-        }
-      }, 300);
-    };
+    
+    if (!searchText) {
+      const onScroll = () => {
+        if (throttleTimeout.current) return;
 
-    window.addEventListener("scroll", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (throttleTimeout.current) clearTimeout(throttleTimeout.current);
-    };
+        throttleTimeout.current = setTimeout(() => {
+          throttleTimeout.current = null;
+          const scrolledToBottom =
+            window.innerHeight + window.scrollY >=
+            document.body.offsetHeight;
+          if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
+            console.log("Fetching more data...");
+            setPageNumber((prev) => prev + 1);
+          }
+        }, 300);
+      };
+
+      window.addEventListener("scroll", onScroll);
+      return () => window.removeEventListener("scroll", onScroll);
+    }
   }, [isFetching, pageNumber, totalPages]);
 
   useEffect(() => {
+    if (!searchText) {
+      setPageNumber((prev) => prev);
+    }
     if (data?.data?.length) {
       const newItems = data.data.filter(
         (item) => !list.some((existing) => existing._id === item._id),
@@ -76,9 +82,8 @@ export default function useInfiniteScroll(
         }
       }
     }
-  }, [data, list, dispatch, setList]);
-
+  }, [data, list, dispatch, setList, searchText]);
+  console.log(list);
 
   return { isLoading, data, list };
 }
-//

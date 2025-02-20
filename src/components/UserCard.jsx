@@ -98,7 +98,7 @@ const UserCard = ({
           direction="row"
           alignItems="center"
           spacing={2}
-          sx={{ pl: isSmallScreen ? 2 : 5, flex: 1 }}
+          sx={{ pl: isSmallScreen ? 0 : 5 }}
         >
           <UserProfileLogo user={user} />
           <Stack

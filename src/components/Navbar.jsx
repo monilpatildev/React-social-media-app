@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -59,18 +60,19 @@ const Navbar = () => {
       navigate(location.pathname);
     }
     dispatch(setSearchTextLoading(true));
-    debounceTimeout.current = setTimeout(() => {
-      dispatch(setSearchTextLoading(false));
-    }, 1500);
   };
 
   useEffect(() => {
     if (localSearch) {
       debounceTimeout.current = setTimeout(() => {
+        dispatch(setSearchTextLoading(false));
         dispatch(setSearchText(localSearch));
       }, 800);
     } else {
       dispatch(setSearchText(""));
+      debounceTimeout.current = setTimeout(() => {
+        dispatch(setSearchTextLoading(false));
+      }, 800);
     }
   }, [dispatch, localSearch]);
 
@@ -80,11 +82,10 @@ const Navbar = () => {
     }
   }, [searchFromURL]);
 
-
   useEffect(() => {
     dispatch(setLoggedUserData(loggedUser?.data || null));
     dispatch(setUserIsLoading(loggedUser?.data ? isLoading : !isLoading));
-  }, [dispatch, loggedUser, isLoading]);
+  }, [loggedUser, isLoading]);
 
   const handleHomePage = () => {
     dispatch(setSearchText(""));
@@ -178,7 +179,7 @@ const Navbar = () => {
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#f0f0f0",
                     borderRadius: "24px",
-                    fontSize: isSmallScreen ? "12px" : "18px",
+                    fontSize: isSmallScreen ? "14px" : "18px",
                     "& fieldset": { borderRadius: "24px" },
                   },
                   width: isSmallScreen ? "150px" : "500px",

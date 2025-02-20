@@ -85,6 +85,7 @@ const EditProfile = ({ setEditForm }) => {
     <>
       <Box
         component="div"
+        onClick={() => setEditForm(false)}
         sx={{
           backgroundColor: "rgba(0, 0, 0, 0.5)",
           position: "fixed",
@@ -100,8 +101,10 @@ const EditProfile = ({ setEditForm }) => {
           position: "fixed",
           top: "50%",
           left: "50%",
-          transform: "translate(-50%, -50%)",
+          transform: "translate(-55%, -50%)",
           zIndex: (theme) => theme.zIndex.drawer + 3,
+          width: { xs: "85%", sm: "500px" },
+          mx: 2,
         }}
         justifyContent="center"
         alignItems="center"
@@ -111,8 +114,8 @@ const EditProfile = ({ setEditForm }) => {
           sx={{
             p: "20px",
             boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
-            borderRadius: "24px",
-            width: "500px",
+            borderRadius: "18px",
+            width: "100%",
             backgroundColor: "#f0f0f0",
           }}
         >
@@ -123,15 +126,23 @@ const EditProfile = ({ setEditForm }) => {
               alignItems="center"
               sx={{ mb: "10px" }}
             >
-              <Typography sx={{ color: "text.secondary", fontSize: 38 }}>
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                  fontSize: { xs: 24, sm: 38 },
+                }}
+              >
                 Edit Profile
               </Typography>
               <CloseIcon
-                sx={{ cursor: "pointer", fontSize: 38 }}
+                sx={{
+                  cursor: "pointer",
+                  fontSize: { xs: 24, sm: 38 },
+                }}
                 onClick={() => setEditForm(false)}
               />
             </Stack>
-            <Stack spacing={2}>
+            <Stack spacing={2} mb={2}>
               {inputFieldArray.map((field) => (
                 <Stack key={field.name} spacing={1} sx={{ mx: "20px" }}>
                   <InputLabel sx={{ my: "5px" }}>{field.label}</InputLabel>
@@ -160,6 +171,7 @@ const EditProfile = ({ setEditForm }) => {
               ))}
             </Stack>
             <FormControlLabel
+              sx={{ mb: "10px" }}
               control={
                 <Switch
                   {...register("account")}
@@ -169,16 +181,22 @@ const EditProfile = ({ setEditForm }) => {
               }
               label="Private Account"
             />
-            <Stack direction="row" justifyContent="center" spacing={2}>
-              <Button variant="contained" onClick={handleSubmit(onSubmit)}>
-                Save
-              </Button>
+            <Stack direction="row" justifyContent="end" spacing={2}>
               <Button
                 variant="contained"
-                color="error"
+                color="default"
+                sx={{ color: "grey", boxShadow: "none" }}
                 onClick={() => setEditForm(false)}
               >
                 Cancel
+              </Button>{" "}
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                onClick={handleSubmit(onSubmit)}
+              >
+                Save
               </Button>
             </Stack>
           </CardContent>

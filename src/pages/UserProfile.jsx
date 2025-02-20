@@ -48,11 +48,7 @@ const UserProfile = () => {
       navigate("/");
     }
 
-    if (loggedUser?.data) {
-      dispatch(setLoggedUserData(loggedUser.data));
-    } else {
-      dispatch(setLoggedUserData(null));
-    }
+    dispatch(setLoggedUserData(loggedUser?.data ? loggedUser?.data : null));
   }, [dispatch, id, location.pathname, loggedUser, navigate]);
 
   const isProfilePage = location.pathname === "/profile";
@@ -86,32 +82,36 @@ const UserProfile = () => {
   }
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
-  
+
   return (
     <>
       <Navbar />
-      <Button
-        sx={{
-          position: "fixed",
-          top: theme.spacing(12),
-          left: theme.spacing(3),
-          fontSize: "24px",
-          zIndex: 1100,
-        }}
-        variant="text"
-      >
-        <Link
-          to={-1}
-          style={{
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-            color: "inherit",
+      {!isSmallScreen && (
+        <Typography
+          sx={{
+            ml: { xs: "16px", sm: "24px" },
+            fontSize: "24px",
+            position: "fixed",
+            top: theme.spacing(12),
+            zIndex: 1100,
+            mt: "10px",
+            color: "#2979ff",
           }}
+          variant="text"
         >
-          <ArrowBackIcon sx={{ mr: "5px" }} /> Back
-        </Link>
-      </Button>
+          <Link
+            to={"/"}
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              color: "inherit",
+            }}
+          >
+            <ArrowBackIcon sx={{ mr: "5px" }} /> Back
+          </Link>
+        </Typography>
+      )}
 
       {profileData ? (
         <Box

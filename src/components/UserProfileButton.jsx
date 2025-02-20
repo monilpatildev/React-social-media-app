@@ -6,11 +6,12 @@ import Cookies from "js-cookie";
 import UserProfileLogo from "./UserProfileLogo";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useState } from "react";
 import { setLoggedUserData } from "../api/user/userSlice";
 import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 import { baseApi } from "../api/baseApi";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 export default function UserProfileButton() {
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
@@ -22,13 +23,18 @@ export default function UserProfileButton() {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleProfilePage = () => {
     navigate("/profile");
     setAnchorEl(null);
   };
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogout = () => {
     toast.success("Log out successfully!", {
@@ -42,11 +48,12 @@ export default function UserProfileButton() {
       },
     });
   };
+
   return (
     <>
       <Stack direction="row" spacing={2} sx={{ mx: "20px" }}>
         <Avatar
-          alt="Travis Howard"
+          alt="User Avatar"
           id="basic-button"
           aria-controls={open ? "basic-menu" : undefined}
           aria-haspopup="true"
@@ -74,17 +81,22 @@ export default function UserProfileButton() {
       >
         <MenuItem
           onClick={handleProfilePage}
-          sx={{ width: "150px", fontSize: "22px", textAlign: "center" }}
+          sx={{
+            width: isSmallScreen ? "120px" : "180px", 
+            fontSize: isSmallScreen ? "18px" : "22px",
+          }}
         >
           Profile
         </MenuItem>
         <MenuItem
           onClick={handleLogout}
-          sx={{ width: "150px", fontSize: "22px", textAlign: "center" }}
+          sx={{
+            width: isSmallScreen ? "120px" : "180px", 
+            fontSize: isSmallScreen ? "18px" : "22px",
+          }}
         >
           Logout
         </MenuItem>
-        <ToastContainer />
       </Menu>
     </>
   );

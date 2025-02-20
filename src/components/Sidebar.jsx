@@ -44,13 +44,13 @@ export default function Sidebar({
       <List sx={{ borderRadius: "24px" }}>
         <ListItemButton onClick={handleVisitAllUsers}>
           <ListItemIcon>
-            <Tooltip title="All Users">
+            <Tooltip title="Search Users">
               <PeopleAltIcon
                 sx={{ mr: "30px", scale: "1.2", cursor: "pointer" }}
               />
             </Tooltip>
           </ListItemIcon>
-          <ListItemText primary="All Users" />
+          <ListItemText primary="Search Users" />
         </ListItemButton>
 
         <ListItemButton onClick={handleAddPost}>

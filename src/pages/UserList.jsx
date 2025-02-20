@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import {
-  Button,
+
   Skeleton,
   Typography,
   Grid,
@@ -23,30 +23,37 @@ export default function UserList() {
 
   const prevUserList = useSelector((state) => state.user.usersList);
   const pageSize = 8;
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
 
-  const { list: usersArray,data, isLoading } = useInfiniteScroll(
+  const { list, data, isLoading } = useInfiniteScroll(
     useGetAllUsersQuery,
     pageSize,
     prevUserList,
     setUsersList,
   );
-
+  const usersArray = list?.filter(
+    (item) =>
+      item?.username !== loggedUserData?.username ||
+      item?.email !== loggedUserData?.email,
+  );
   return (
     <>
       <Navbar />
       {!isSmallScreen && (
-        <Button
+        <Typography
           sx={{
+            ml: { xs: "16px", sm: "24px" },
+            fontSize: "24px",
             position: "fixed",
             top: theme.spacing(12),
-            left: theme.spacing(3),
-            fontSize: "24px",
             zIndex: 1100,
+            mt: "10px",
+            color: "#2979ff",
           }}
           variant="text"
         >
           <Link
-            to={-1}
+            to={"/"}
             style={{
               textDecoration: "none",
               display: "flex",
@@ -56,9 +63,8 @@ export default function UserList() {
           >
             <ArrowBackIcon sx={{ mr: "5px" }} /> Back
           </Link>
-        </Button>
+        </Typography>
       )}
-
       <Box
         sx={{
           pt: "30px",
