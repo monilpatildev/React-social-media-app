@@ -6,12 +6,14 @@ import Cookies from "js-cookie";
 import UserProfileLogo from "./UserProfileLogo";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useState } from "react";
 import { setLoggedUserData } from "../api/user/userSlice";
 import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
 import { baseApi } from "../api/baseApi";
 import { useMediaQuery, useTheme } from "@mui/material";
+import AssignmentIndRoundedIcon from "@mui/icons-material/AssignmentIndRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 
 export default function UserProfileButton() {
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
@@ -37,6 +39,7 @@ export default function UserProfileButton() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogout = () => {
+    
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
@@ -82,22 +85,24 @@ export default function UserProfileButton() {
         <MenuItem
           onClick={handleProfilePage}
           sx={{
-            width: isSmallScreen ? "120px" : "180px", 
+            width: isSmallScreen ? "120px" : "180px",
             fontSize: isSmallScreen ? "18px" : "22px",
           }}
         >
-          Profile
+          <AssignmentIndRoundedIcon sx={{ mr: "10px" }} /> Profile
         </MenuItem>
         <MenuItem
           onClick={handleLogout}
           sx={{
-            width: isSmallScreen ? "120px" : "180px", 
+            width: isSmallScreen ? "120px" : "180px",
             fontSize: isSmallScreen ? "18px" : "22px",
           }}
         >
+          <LogoutRoundedIcon sx={{ mr: "10px" }} />
           Logout
         </MenuItem>
       </Menu>
+      <ToastContainer />
     </>
   );
 }

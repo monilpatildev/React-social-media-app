@@ -24,6 +24,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { useGetLoggedUserQuery, useGetUserQuery } from "../api/user/userApi";
 import { setLoggedUserData } from "../api/user/userSlice";
 import profileBg from "../assets/logo.png";
+import BorderColorRoundedIcon from "@mui/icons-material/BorderColorRounded";
+import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -55,19 +57,11 @@ const UserProfile = () => {
   const profileData = isProfilePage ? loggedUserData : user;
 
   const handleFollowersPage = () => {
-    if (id) {
-      navigate(`/user/${id}/followers`);
-    } else {
-      navigate("/user/followers");
-    }
+    navigate(id ? `/user/${id}/followers` : "/user/followers");
   };
 
   const handleFollowingPage = () => {
-    if (id) {
-      navigate(`/user/${id}/following`);
-    } else {
-      navigate("/user/following");
-    }
+    navigate(id ? `/user/${id}/following` : "/user/following");
   };
 
   const [editForm, setEditForm] = useState(false);
@@ -82,6 +76,7 @@ const UserProfile = () => {
   }
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+  console.log(profileData);
 
   return (
     <>
@@ -100,7 +95,7 @@ const UserProfile = () => {
           variant="text"
         >
           <Link
-            to={"/"}
+            to={-1}
             style={{
               textDecoration: "none",
               display: "flex",
@@ -233,10 +228,10 @@ const UserProfile = () => {
                   color="error"
                   onClick={() => setDeleteUserForm(true)}
                 >
-                  Delete Account
+                  <PersonRemoveRoundedIcon sx={{ mr: "10px" }} /> Delete Account
                 </Button>
                 <Button variant="contained" onClick={() => setEditForm(true)}>
-                  Edit Profile
+                  <BorderColorRoundedIcon sx={{ mr: "10px" }} /> Edit Profile
                 </Button>
               </Stack>
             )}

@@ -8,7 +8,7 @@ import {
   useUnfollowUserMutation,
 } from "../api/follow/followApi";
 import { useGetUserQuery } from "../api/user/userApi";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import { useTheme } from "@mui/material/styles";
 
@@ -18,12 +18,14 @@ const UserCard = ({
   isLoggedUserFollowingPage,
   isUsersFollowerPage,
   isUsersFollowingPage,
-  // data
+
+
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isFollowRequestPage = location.pathname === "/follow-request";
   const isAllUsersPage = location.pathname === "/users";
@@ -78,7 +80,15 @@ const UserCard = ({
     }
   };
   console.log(item);
-
+  const handleUserProfile = () => {
+    {
+      isLoggedUserFollowerPage || isUsersFollowerPage
+        ? navigate(user && `/user/${item?.followerId}`)
+        : isLoggedUserFollowingPage || isUsersFollowingPage
+          ? navigate(user && `/user/${item?.followingId}`)
+          : navigate(user && `/user/${user?._id}`);
+    }
+  };
   return (
     <>
       <Stack
@@ -98,7 +108,8 @@ const UserCard = ({
           direction="row"
           alignItems="center"
           spacing={2}
-          sx={{ pl: isSmallScreen ? 0 : 5 }}
+          sx={{ pl: isSmallScreen ? 0 : 5, cursor: "pointer" }}
+          onClick={handleUserProfile}
         >
           <UserProfileLogo user={user} />
           <Stack

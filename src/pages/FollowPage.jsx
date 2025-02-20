@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { useLocation, useParams, Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetUserQuery } from "../api/user/userApi";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 
 const FollowPage = () => {
   const theme = useTheme();
@@ -14,9 +15,8 @@ const FollowPage = () => {
   const location = useLocation();
   const { id } = useParams();
 
-  const { data: user } = useGetUserQuery(id, { skip: !id });
+  const { data: userData } = useGetUserQuery(id, { skip: !id });
 
-  // Determine which follow list to display based on the URL
   const isLoggedUserFollowerPage = location.pathname === "/user/followers";
   const isLoggedUserFollowingPage = location.pathname === "/user/following";
   const isUsersFollowerPage =
@@ -24,36 +24,35 @@ const FollowPage = () => {
   const isUsersFollowingPage =
     id && location.pathname === `/user/${id}/following`;
 
-  // Determine active tab
   const activeFollowing = isLoggedUserFollowingPage || isUsersFollowingPage;
   const activeFollowers = isLoggedUserFollowerPage || isUsersFollowerPage;
 
-  // Get follow list data
   const loggedUserFollowList = isLoggedUserFollowerPage
     ? loggedUserData?.follower
     : isLoggedUserFollowingPage && loggedUserData?.following;
 
   const userFollowList = isUsersFollowerPage
-    ? user?.follower
-    : isUsersFollowingPage && user?.following;
+    ? userData?.follower
+    : isUsersFollowingPage && userData?.following;
 
   const usersArray =
     isLoggedUserFollowerPage || isLoggedUserFollowingPage
       ? loggedUserFollowList
       : (isUsersFollowerPage || isUsersFollowingPage) && userFollowList;
 
-  // Define routes for the buttons
   const followingLink = id ? `/user/${id}/following` : "/user/following";
   const followersLink = id ? `/user/${id}/followers` : "/user/followers";
+  console.log(userData);
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
   return (
     <>
       <Navbar />
-      {/* Fixed Toggle Buttons Container */}
       <Box
         sx={{
           position: "fixed",
-          top: "64px", // adjust this if your Navbar height differs
+          top: "64px",
           left: 0,
           right: 0,
           backgroundColor: "white",
@@ -103,7 +102,7 @@ const FollowPage = () => {
           variant="text"
         >
           <Link
-            to={"/profile"}
+            to={-1}
             style={{
               textDecoration: "none",
               display: "flex",
@@ -115,12 +114,43 @@ const FollowPage = () => {
           </Link>
         </Typography>
       )}
+      {userData ? (
+        <Typography
+          sx={{
+            ml: { xs: isSmallScreen ? "0" : "16px", sm: "24px" },
+            position: "fixed",
+            top: theme.spacing(isSmallScreen ? 10 : 16),
+            zIndex: 1100,
+            mt: "10px",
+            color: "text.secondary",
+            fontSize: isSmallScreen ? 20 : 28,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textAlign: isSmallScreen ? "center" : "left",
+            fontWeight: "600",
+            backgroundColor: !isSmallScreen ? "none" : "#f0f0f0",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+          }}
+          variant="text"
+        >
+          <AccountCircleRoundedIcon
+            sx={{ fontSize: isSmallScreen ? 20 : 34, mr: 1 }}
+          />
+          {capitalize(userData?.firstname)} {capitalize(userData?.lastname)}
+        </Typography>
+      ) : (
+        ""
+      )}
 
       <Box
         sx={{
           pt: "120px",
           minHeight: "825px",
           p: { xs: "10px", sm: "20px" },
+          mt: isSmallScreen ? "50px" : "25px",
         }}
       >
         <Box>
