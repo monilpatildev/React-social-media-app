@@ -9,7 +9,7 @@ import {
 } from "../api/follow/followApi";
 import { useGetUserQuery } from "../api/user/userApi";
 import { useLocation, useNavigate } from "react-router";
-import { toast, ToastContainer } from "react-toastify";
+
 import { useTheme } from "@mui/material/styles";
 
 const UserCard = ({
@@ -18,8 +18,6 @@ const UserCard = ({
   isLoggedUserFollowingPage,
   isUsersFollowerPage,
   isUsersFollowingPage,
-
-
 }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -49,7 +47,6 @@ const UserCard = ({
 
   const followRequestPageUsers = isFollowRequestPage && requestedUser;
   const allUsersPageUsers = isAllUsersPage && item;
-  // console.log(data.data.map((dataUser) => dataUser.isFollowing === item.isFollowing));
 
   const user =
     isLoggedUserFollowerPage ||
@@ -65,12 +62,7 @@ const UserCard = ({
 
   const handleFollowUser = async () => {
     if (isFollowRequestPage) {
-      toast.success("You accepted request!", {
-        autoClose: 300,
-        onClose: () => {
-          acceptFollowRequest({ id: item.followerId });
-        },
-      });
+      acceptFollowRequest({ id: item.followerId });
     } else {
       if (!isFollowing) {
         await followUser({ id: item._id });
@@ -79,22 +71,24 @@ const UserCard = ({
       }
     }
   };
-  console.log(item);
+
   const handleUserProfile = () => {
     {
-      isLoggedUserFollowerPage || isUsersFollowerPage
+      isLoggedUserFollowerPage || isUsersFollowerPage || isFollowRequestPage
         ? navigate(user && `/user/${item?.followerId}`)
         : isLoggedUserFollowingPage || isUsersFollowingPage
           ? navigate(user && `/user/${item?.followingId}`)
           : navigate(user && `/user/${user?._id}`);
     }
   };
+
+
   return (
     <>
       <Stack
-        direction={isSmallScreen ? "column" : "row"}
+        direction={isSmallScreen ? "column-reverse" : "row"}
         justifyContent="space-between"
-        alignItems="center"
+        alignItems={isSmallScreen ? undefined : "center"}
         spacing={1.25}
         sx={{
           p: 2,
@@ -164,9 +158,9 @@ const UserCard = ({
           </Stack>
         </Stack>
         <Stack
-          sx={{ width: isSmallScreen ? "auto" : "200px" }}
-          justifyContent={"center"}
-          alignItems="center"
+          sx={{ width: isSmallScreen ? "auto" : "200px", mb: "50px" }}
+          spacing={1.25}
+          alignItems={isSmallScreen ? "end" : "center"}
         >
           {user?.username !== loggedUserData?.username &&
           !isLoggedUserFollowerPage &&
@@ -192,7 +186,12 @@ const UserCard = ({
                   : false
               }
               onClick={handleFollowUser}
-              sx={{ width: isSmallScreen ? "auto" : "100px" }}
+              sx={{
+                width: isSmallScreen ? "auto" : "100px",
+                fontSize: isSmallScreen ? 12 : undefined,
+                p: isSmallScreen ? 0.2 : undefined,
+                px: isSmallScreen ? 0.8 : undefined,
+              }}
             >
               {isFollowRequestPage
                 ? "Accept"
@@ -208,10 +207,11 @@ const UserCard = ({
                     ? "Unfollow"
                     : "Follow"}
             </Button>
-          ) : null}
+          ) : (
+            ""
+          )}
         </Stack>
       </Stack>
-      <ToastContainer />
     </>
   );
 };

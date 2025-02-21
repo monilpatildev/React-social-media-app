@@ -74,7 +74,7 @@ const Post = ({ item }) => {
         sx={{ backgroundColor: "white" }}
       >
         <Box onClick={handleUserProfile}>
-          <UserProfileLogo user={user} />
+          <UserProfileLogo user={user}  />
         </Box>
         <Stack
           direction="column"

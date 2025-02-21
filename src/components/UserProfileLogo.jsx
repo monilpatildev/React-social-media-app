@@ -1,13 +1,14 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfileLogo = (user) => {
-  
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <Box
       sx={{
         cursor: "pointer",
-        width: "55px",
-        height: "55px",
+        width: isSmallScreen ? "40px" : "50px",
+        height: isSmallScreen ? "40px" : "50px",
         border: "1px solid grey",
         padding: "5px",
         borderRadius: "100px",
@@ -17,7 +18,9 @@ const UserProfileLogo = (user) => {
         alignItems: "center",
       }}
     >
-      <Typography sx={{ color: "text.secondary", fontSize:22 }}>
+      <Typography
+        sx={{ color: "text.secondary", fontSize: isSmallScreen ? 20 : 22 }}
+      >
         {user?.user?.firstname?.[0]?.toUpperCase()}
         {user?.user?.lastname?.[0]?.toUpperCase()}
       </Typography>

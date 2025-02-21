@@ -68,7 +68,6 @@ export default function UserList() {
       <Box
         sx={{
           pt: "30px",
-          minHeight: "825px",
           p: isSmallScreen ? "10px" : "20px 400px",
           mt: isSmallScreen ? "10px" : "30px",
         }}

@@ -1,15 +1,16 @@
-import Navbar from "@components/Navbar";
-import { Box, Skeleton, Typography, useMediaQuery } from "@mui/material";
+import Box from "@mui/material/Box";
+import { Skeleton, Typography, Grid, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useGetFollowRequestQuery } from "../api/follow/followApi";
 import UserCard from "@components/UserCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link } from "react-router";
+import { Link } from "react-router-dom"; // Ensure you're using react-router-dom
+import Navbar from "@components/Navbar";
 
 const FollowRequests = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const { data: requestArray } = useGetFollowRequestQuery();
+  const { data: requestArray, isLoading } = useGetFollowRequestQuery({refetchOnMountOrArgChange: true});
 
   return (
     <>
@@ -43,53 +44,51 @@ const FollowRequests = () => {
       <Box
         sx={{
           pt: "30px",
-          p: { xs: "10px", sm: "20px" },
+          p: isSmallScreen ? "10px" : "20px 400px",
+          mt: isSmallScreen ? "10px" : "30px",
         }}
       >
-        {requestArray?.length ? (
-          requestArray.map((item, index) => (
-            <Box
-              key={index}
+        {!isLoading ? (
+          requestArray?.length ? (
+            <Grid container spacing={2}>
+              {requestArray.map((item, index) => (
+                <Grid item xs={12} key={index}>
+                  <UserCard item={item} />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Typography
+              gutterBottom
               sx={{
-                m: { xs: "10px", sm: "30px" },
-                mx: { xs: "10px", sm: 50 },
-                backgroundColor: "#f0f0f0",
-                borderRadius: "12px",
-                p: { xs: "10px", sm: "20px" },
+                color: "text.secondary",
+                mt: "100px",
+                textAlign: "center",
+                fontSize: { xs: 24, md: 38 },
+                width: "100%",
               }}
             >
-              {item ? (
-                <UserCard item={item} />
-              ) : (
+              No Requests!!
+            </Typography>
+          )
+        ) : (
+          <Grid container spacing={2}>
+            {Array.from("12345").map((_, index) => (
+              <Grid item xs={12} key={index}>
                 <Skeleton
                   variant="rectangular"
-                  height={130}
+                  height={110}
                   sx={{
-                    pr: 2,
-                    m: { xs: "5px 10px", sm: "5px 10px" },
+                    p: 2,
                     display: "flex",
-                    p: "10px",
                     alignItems: "center",
                     gap: "10px",
                     borderRadius: "14px",
                   }}
                 />
-              )}
-            </Box>
-          ))
-        ) : (
-          <Typography
-            gutterBottom
-            sx={{
-              color: "text.secondary",
-              mt: "100px",
-              textAlign: "center",
-              fontSize: { xs: 24, md: 38 },
-              width: "100%",
-            }}
-          >
-            No Requests!!
-          </Typography>
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Box>
     </>

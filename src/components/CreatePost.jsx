@@ -82,7 +82,6 @@ const CreatePost = ({ setShowCreatePost }) => {
   });
 
   useEffect(() => {
-
     if (newPost && !postLists.some((post) => post._id === newPost._id)) {
       dispatch(setPostLists([newPost, ...postLists]));
     }
@@ -104,7 +103,6 @@ const CreatePost = ({ setShowCreatePost }) => {
       dispatch(setNewPost(response.data));
       dispatch(setSearchText(""));
     } catch (error) {
-      console.log(error);
       toast.error("Failed to create post.");
     }
   };

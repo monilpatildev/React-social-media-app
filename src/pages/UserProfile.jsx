@@ -95,7 +95,7 @@ const UserProfile = () => {
           variant="text"
         >
           <Link
-            to={-1}
+            to={"/"}
             style={{
               textDecoration: "none",
               display: "flex",
@@ -113,7 +113,7 @@ const UserProfile = () => {
           sx={{
             maxWidth: 900,
             mx: isSmallScreen ? "35px" : "auto",
-            mt: 10,
+            mt: 5,
             mb: 4,
             bgcolor: "background.paper",
             boxShadow: 3,
@@ -143,7 +143,7 @@ const UserProfile = () => {
               height: isSmallScreen ? 80 : 100,
               border: "4px solid white",
               position: "absolute",
-              top: isSmallScreen ? 225 : 320,
+              top: isSmallScreen ? 190 : 280,
               left: "50%",
               transform: "translateX(-50%)",
               backgroundColor: "grey.300",
@@ -228,14 +228,25 @@ const UserProfile = () => {
                   color="error"
                   onClick={() => setDeleteUserForm(true)}
                 >
-                  <PersonRemoveRoundedIcon sx={{ mr: "10px" }} /> Delete Account
+                  <PersonRemoveRoundedIcon
+                    sx={{
+                      mr: "10px",
+                      fontSize: isSmallScreen ? 18 : undefined,
+                    }}
+                  />{" "}
+                  {isSmallScreen ? "Delete" : "Delete Profile"}
                 </Button>
                 <Button variant="contained" onClick={() => setEditForm(true)}>
-                  <BorderColorRoundedIcon sx={{ mr: "10px" }} /> Edit Profile
+                  <BorderColorRoundedIcon
+                    sx={{
+                      mr: "10px",
+                      fontSize: isSmallScreen ? 18 : undefined,
+                    }}
+                  />{" "}
+                  {isSmallScreen ? "Edit" : "Edit Profile"}
                 </Button>
               </Stack>
             )}
-            {/* Bottom Section: Posts, Likes & Saves */}
             <Divider sx={{ my: 3 }} />
             <Stack direction="row" justifyContent="center" spacing={4}>
               <Stack alignItems="center">
@@ -254,7 +265,16 @@ const UserProfile = () => {
                 />
                 <Typography variant="caption">Saves</Typography>
               </Stack>
-            </Stack>
+            </Stack>{" "}
+            <Typography
+              variant="caption"
+              fontSize={isSmallScreen ? 14 : 20}
+              sx={{
+                color: "text.secondary",
+              }}
+            >
+              (Features coming soon...)
+            </Typography>
           </Box>
         </Box>
       ) : (
@@ -263,7 +283,6 @@ const UserProfile = () => {
         </Box>
       )}
 
-      {/* Portals for modals */}
       {editForm &&
         createPortal(
           <EditProfile

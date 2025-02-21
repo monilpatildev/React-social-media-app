@@ -40,7 +40,7 @@ export const followApi = baseApi.injectEndpoints({
         method: "POST",
         body: id,
       }),
-      invalidatesTags: ["FollowRequest", "GetLoginUser"],
+      invalidatesTags: ["FollowRequest", "GetLoginUser", "GetAllUsers"],
     }),
   }),
 });

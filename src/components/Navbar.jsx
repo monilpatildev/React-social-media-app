@@ -12,6 +12,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  InputAdornment,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +24,10 @@ import logo from "../assets/logo.png";
 import UserProfileButton from "@components/UserProfileButton";
 import { createPortal } from "react-dom";
 import CreatePost from "./CreatePost";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Navbar = () => {
   const theme = useTheme();
@@ -54,9 +59,7 @@ const Navbar = () => {
     if (debounceTimeout.current) {
       clearTimeout(debounceTimeout.current);
     }
-    if (value) {
-      navigate(`${location.pathname}?search=${encodeURIComponent(value)}`);
-    } else {
+    if (!value) {
       navigate(location.pathname);
     }
     dispatch(setSearchTextLoading(true));
@@ -65,6 +68,9 @@ const Navbar = () => {
   useEffect(() => {
     if (localSearch) {
       debounceTimeout.current = setTimeout(() => {
+        navigate(
+          `${location.pathname}?search=${encodeURIComponent(localSearch)}`,
+        );
         dispatch(setSearchTextLoading(false));
         dispatch(setSearchText(localSearch));
       }, 800);
@@ -184,6 +190,13 @@ const Navbar = () => {
                   },
                   width: isSmallScreen ? "150px" : "500px",
                 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="disabled" />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Box>
           )}
@@ -192,7 +205,7 @@ const Navbar = () => {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-end",
+              justifyContent: "end",
               flex: isSmallScreen ? "1" : "0 0 300px",
             }}
           >
@@ -218,8 +231,9 @@ const Navbar = () => {
                 size="large"
                 edge="end"
                 color="default"
+                sx={{ p: 0.5 }}
               >
-                <MenuIcon />
+                <MenuIcon sx={{ fontSize: 30 }} />
               </IconButton>
             )}
           </Box>
@@ -238,11 +252,23 @@ const Navbar = () => {
               vertical: "center",
               horizontal: "left",
             }}
-            sx={{ mt: "45px", mr: "0" }}
+            sx={{ mt: "45px" }}
           >
-            <MenuItem onClick={handleCreatePost}>Create Post</MenuItem>
-            <MenuItem onClick={handleAllUsers}>All Users</MenuItem>
-            <MenuItem onClick={handleFollowRequest}>Follow Request</MenuItem>
+            <MenuItem onClick={handleCreatePost}>
+              {" "}
+              <AddBoxIcon sx={{ mr: "8px", scale: "1", cursor: "pointer" }} />
+              Create Post
+            </MenuItem>
+            <MenuItem onClick={handleAllUsers}>
+              <PeopleAltIcon
+                sx={{ mr: "8px", scale: "1", cursor: "pointer" }}
+              />
+              Search Users
+            </MenuItem>
+            <MenuItem onClick={handleFollowRequest}>
+              <FavoriteIcon sx={{ mr: "8px", scale: "1", cursor: "pointer" }} />
+              Follow Request
+            </MenuItem>
           </Menu>
         )}
       </AppBar>

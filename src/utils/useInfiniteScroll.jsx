@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -29,30 +29,26 @@ export default function useInfiniteScroll(
     if (!isNavbar) {
       dispatch(setList([]));
     }
-  }, [searchText, dispatch, setList]);
+  }, [searchText, dispatch, setList, isNavbar]);
 
-  useEffect(() => {
-    
+  useEffect(() => {    
     if (!searchText) {
       const onScroll = () => {
         if (throttleTimeout.current) return;
-
         throttleTimeout.current = setTimeout(() => {
           throttleTimeout.current = null;
           const scrolledToBottom =
-            window.innerHeight + window.scrollY >=
-            document.body.offsetHeight;
+            window.innerHeight + window.scrollY >= document.body.offsetHeight;
           if (scrolledToBottom && !isFetching && pageNumber < totalPages) {
             console.log("Fetching more data...");
             setPageNumber((prev) => prev + 1);
           }
         }, 300);
       };
-
       window.addEventListener("scroll", onScroll);
       return () => window.removeEventListener("scroll", onScroll);
     }
-  }, [isFetching, pageNumber, totalPages]);
+  }, [isFetching, pageNumber, totalPages, searchText]);
 
   useEffect(() => {
     if (!searchText) {
@@ -83,7 +79,6 @@ export default function useInfiniteScroll(
       }
     }
   }, [data, list, dispatch, setList, searchText]);
-  console.log(list);
 
   return { isLoading, data, list };
 }

@@ -21,7 +21,6 @@ export const authApi = baseApi.injectEndpoints({
       onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-          console.log("signInUser", data.data.token);
           dispatch(setAuthToken(data.data.token));
         } catch (error) {
           dispatch(setAuthToken(null));

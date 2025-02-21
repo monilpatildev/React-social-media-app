@@ -39,7 +39,6 @@ export default function UserProfileButton() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogout = () => {
-    
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
@@ -54,7 +53,11 @@ export default function UserProfileButton() {
 
   return (
     <>
-      <Stack direction="row" spacing={2} sx={{ mx: "20px" }}>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{ mx: isSmallScreen ? "0" : "20px" }}
+      >
         <Avatar
           alt="User Avatar"
           id="basic-button"
@@ -64,7 +67,7 @@ export default function UserProfileButton() {
           onClick={handleClick}
           sx={{
             cursor: "pointer",
-            width: "45px",
+            width: "50px",
             height: "50px",
             backgroundColor: "white",
           }}
@@ -78,15 +81,13 @@ export default function UserProfileButton() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{
-          "aria-labelledby": "basic-button",
-        }}
+        
       >
         <MenuItem
           onClick={handleProfilePage}
           sx={{
             width: isSmallScreen ? "120px" : "180px",
-            fontSize: isSmallScreen ? "18px" : "22px",
+            fontSize: isSmallScreen ? "17px" : "22px",
           }}
         >
           <AssignmentIndRoundedIcon sx={{ mr: "10px" }} /> Profile
@@ -95,7 +96,7 @@ export default function UserProfileButton() {
           onClick={handleLogout}
           sx={{
             width: isSmallScreen ? "120px" : "180px",
-            fontSize: isSmallScreen ? "18px" : "22px",
+            fontSize: isSmallScreen ? "17px" : "22px",
           }}
         >
           <LogoutRoundedIcon sx={{ mr: "10px" }} />

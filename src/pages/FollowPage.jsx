@@ -1,4 +1,3 @@
-import Navbar from "@components/Navbar";
 import UserCard from "@components/UserCard";
 import { Box, Button, Typography, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material";
@@ -6,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useLocation, useParams, Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetUserQuery } from "../api/user/userApi";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
+import Navbar from "@components/Navbar";
 
 const FollowPage = () => {
   const theme = useTheme();
@@ -42,7 +41,7 @@ const FollowPage = () => {
 
   const followingLink = id ? `/user/${id}/following` : "/user/following";
   const followersLink = id ? `/user/${id}/followers` : "/user/followers";
-  console.log(userData);
+
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
@@ -58,6 +57,7 @@ const FollowPage = () => {
           backgroundColor: "white",
           zIndex: 1100,
           borderBottom: "1px solid #ddd",
+          mt: "8px",
         }}
       >
         <Box sx={{ display: "flex" }}>
@@ -88,69 +88,49 @@ const FollowPage = () => {
         </Box>
       </Box>
 
-      {!isSmallScreen && (
-        <Typography
-          sx={{
-            ml: { xs: "16px", sm: "24px" },
-            fontSize: "24px",
-            position: "fixed",
-            top: theme.spacing(12),
-            zIndex: 1100,
-            mt: "10px",
-            color: "#2979ff",
-          }}
-          variant="text"
-        >
-          <Link
-            to={-1}
-            style={{
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              color: "inherit",
-            }}
-          >
-            <ArrowBackIcon sx={{ mr: "5px" }} /> Back
-          </Link>
-        </Typography>
-      )}
-      {userData ? (
-        <Typography
-          sx={{
-            ml: { xs: isSmallScreen ? "0" : "16px", sm: "24px" },
-            position: "fixed",
-            top: theme.spacing(isSmallScreen ? 10 : 16),
-            zIndex: 1100,
-            mt: "10px",
-            color: "text.secondary",
-            fontSize: isSmallScreen ? 20 : 28,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textAlign: isSmallScreen ? "center" : "left",
-            fontWeight: "600",
-            backgroundColor: !isSmallScreen ? "none" : "#f0f0f0",
-            width: "100%",
+      <Typography
+        sx={{
+          ml: { xs: isSmallScreen ? "0px" : "16px", sm: "24px" },
+          mt: isSmallScreen ? "8px" : "auto",
+          pt: isSmallScreen ? "8px" : "auto",
+          fontSize: "24px",
+          position: "fixed",
+          top: theme.spacing(isSmallScreen ? 13 : 15),
+          zIndex: 1100,
+          color: "#2979ff",
+          backgroundColor: isSmallScreen ? "#f0f0f0" : "transparent",
+          width: "100%",
+        }}
+        variant="text"
+      >
+        <Link
+          to={
+            !isLoggedUserFollowingPage && !isLoggedUserFollowerPage
+              ? `/user/${id}`
+              : "/profile"
+          }
+          style={{
+            textDecoration: "none",
             display: "flex",
             alignItems: "center",
+            color: "inherit",
+            fontSize: isSmallScreen ? 16 : 28,
           }}
-          variant="text"
         >
-          <AccountCircleRoundedIcon
-            sx={{ fontSize: isSmallScreen ? 20 : 34, mr: 1 }}
+          <ArrowBackIcon
+            sx={{ mr: "5px", fontSize: isSmallScreen ? 16 : 18 }}
           />
-          {capitalize(userData?.firstname)} {capitalize(userData?.lastname)}
-        </Typography>
-      ) : (
-        ""
-      )}
+          {userData
+            ? `${capitalize(userData?.firstname)} ${capitalize(userData?.lastname)}`
+            : "Back"}
+        </Link>
+      </Typography>
 
       <Box
         sx={{
           pt: "120px",
-          minHeight: "825px",
           p: { xs: "10px", sm: "20px" },
-          mt: isSmallScreen ? "50px" : "25px",
+          mt: isSmallScreen ? "60px" : "25px",
         }}
       >
         <Box>
