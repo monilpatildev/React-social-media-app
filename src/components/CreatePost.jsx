@@ -18,13 +18,13 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { ToastContainer, toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useCreatePostMutation } from "../api/post/postApi";
 import { setNewPost, setPostLists, setSearchText } from "../api/post/postSlice";
 import { useTheme } from "@mui/material/styles";
+import { toast } from "react-toastify";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -298,7 +298,6 @@ const CreatePost = ({ setShowCreatePost }) => {
                 </FormHelperText>
               )}
 
-              {/* Private Post Switch */}
               <Stack direction="row" alignItems="center">
                 <Controller
                   name="isPrivate"
@@ -307,7 +306,8 @@ const CreatePost = ({ setShowCreatePost }) => {
                     <Switch {...field} checked={!!field.value} />
                   )}
                 />
-                <Typography>Private Post</Typography>
+                
+                <Typography >Private Post</Typography>
               </Stack>
               <Stack
                 direction="row"
@@ -336,7 +336,6 @@ const CreatePost = ({ setShowCreatePost }) => {
           </CardContent>
         </Card>
       </Stack>
-      <ToastContainer />
     </>
   );
 };

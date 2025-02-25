@@ -14,7 +14,7 @@ import {
   Switch,
   Stack,
 } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEditProfileMutation } from "../api/user/userApi";
@@ -202,7 +202,6 @@ const EditProfile = ({ setEditForm }) => {
           </CardContent>
         </Card>
       </Stack>
-      <ToastContainer />
     </>
   );
 };

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useContext, useLayoutEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { setUserLoggedIn } from "../api/auth/authSlice";
-
+import { ToastContainer } from "react-toastify";
 
 const Layout = () => {
   const dispatch = useDispatch();
@@ -15,6 +15,7 @@ const Layout = () => {
   return (
     <>
       <Outlet />
+      <ToastContainer />
     </>
   );
 };

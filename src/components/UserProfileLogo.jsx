@@ -19,7 +19,7 @@ const UserProfileLogo = (user) => {
       }}
     >
       <Typography
-        sx={{ color: "text.secondary", fontSize: isSmallScreen ? 20 : 22 }}
+        sx={{ color: "text.secondary", fontSize: isSmallScreen ? 16 : 22 }}
       >
         {user?.user?.firstname?.[0]?.toUpperCase()}
         {user?.user?.lastname?.[0]?.toUpperCase()}

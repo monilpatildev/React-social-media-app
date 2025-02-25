@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -28,10 +28,12 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
+import { capitalize } from "@utils/string";
 
 const Navbar = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const { id } = useParams();
 
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
 
@@ -43,6 +45,13 @@ const Navbar = () => {
 
   const isHome = location.pathname === "/";
   const isSearchUser = location.pathname === "/users";
+
+  const isLoggedUserFollowerPage = location.pathname === "/user/followers";
+  const isLoggedUserFollowingPage = location.pathname === "/user/following";
+  const isUsersFollowerPage =
+    id && location.pathname === `/user/${id}/followers`;
+  const isUsersFollowingPage =
+    id && location.pathname === `/user/${id}/following`;
 
   useEffect(() => {
     document.body.style.overflow = showCreatePost ? "hidden" : "auto";
@@ -129,8 +138,6 @@ const Navbar = () => {
     handleMenuClose();
   };
 
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
   return (
     <>
@@ -164,7 +171,12 @@ const Navbar = () => {
             />
           </Box>
 
-          {(isHome || isSearchUser) && (
+          {(isHome ||
+            isSearchUser ||
+            isLoggedUserFollowerPage ||
+            isLoggedUserFollowingPage ||
+            isUsersFollowerPage ||
+            isUsersFollowingPage) && (
             <Box
               sx={{
                 display: "flex",
@@ -178,7 +190,13 @@ const Navbar = () => {
                 value={localSearch}
                 onChange={handleSearchText}
                 placeholder={
-                  isSearchUser ? "Search user..." : "Search post title..."
+                  isSearchUser ||
+                  isLoggedUserFollowerPage ||
+                  isLoggedUserFollowingPage ||
+                  isUsersFollowerPage ||
+                  isUsersFollowingPage
+                    ? "Search user..."
+                    : "Search post title..."
                 }
                 size="small"
                 sx={{

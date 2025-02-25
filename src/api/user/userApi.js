@@ -12,7 +12,6 @@ export const userApi = baseApi.injectEndpoints({
       onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
         try {
           const { data } = await queryFulfilled;
-
           dispatch(setLoggedUserData(data.data));
         } catch (error) {
           dispatch(setLoggedUserData(null));

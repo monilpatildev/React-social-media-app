@@ -14,9 +14,6 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import GridViewIcon from "@mui/icons-material/GridView";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import EditProfile from "@components/EditProfile";
 import DeleteUserForm from "@components/DeleteUserForm";
 import Navbar from "@components/Navbar";
@@ -26,6 +23,8 @@ import { setLoggedUserData } from "../api/user/userSlice";
 import profileBg from "../assets/logo.png";
 import BorderColorRoundedIcon from "@mui/icons-material/BorderColorRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
+import { capitalize } from "@utils/string";
+
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -49,7 +48,6 @@ const UserProfile = () => {
     ) {
       navigate("/");
     }
-
     dispatch(setLoggedUserData(loggedUser?.data ? loggedUser?.data : null));
   }, [dispatch, id, location.pathname, loggedUser, navigate]);
 
@@ -74,9 +72,6 @@ const UserProfile = () => {
       </Box>
     );
   }
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
-  console.log(profileData);
 
   return (
     <>
@@ -111,9 +106,9 @@ const UserProfile = () => {
       {profileData ? (
         <Box
           sx={{
-            maxWidth: 900,
+            maxWidth: 1200,
             mx: isSmallScreen ? "35px" : "auto",
-            mt: 5,
+            mt: 6,
             mb: 4,
             bgcolor: "background.paper",
             boxShadow: 3,
@@ -147,7 +142,7 @@ const UserProfile = () => {
               left: "50%",
               transform: "translateX(-50%)",
               backgroundColor: "grey.300",
-              fontSize: "3rem",
+              fontSize: isSmallScreen ? 34 : 52,
             }}
           >
             {profileData?.firstname?.[0]?.toUpperCase()}
@@ -227,6 +222,7 @@ const UserProfile = () => {
                   variant="contained"
                   color="error"
                   onClick={() => setDeleteUserForm(true)}
+                  aria-label="Delete Profile"
                 >
                   <PersonRemoveRoundedIcon
                     sx={{
@@ -247,34 +243,6 @@ const UserProfile = () => {
                 </Button>
               </Stack>
             )}
-            <Divider sx={{ my: 3 }} />
-            <Stack direction="row" justifyContent="center" spacing={4}>
-              <Stack alignItems="center">
-                <GridViewIcon sx={{ fontSize: 30, color: "text.secondary" }} />
-                <Typography variant="caption">Posts</Typography>
-              </Stack>
-              <Stack alignItems="center">
-                <FavoriteBorderIcon
-                  sx={{ fontSize: 30, color: "text.secondary" }}
-                />
-                <Typography variant="caption">Likes</Typography>
-              </Stack>
-              <Stack alignItems="center">
-                <BookmarkBorderIcon
-                  sx={{ fontSize: 30, color: "text.secondary" }}
-                />
-                <Typography variant="caption">Saves</Typography>
-              </Stack>
-            </Stack>{" "}
-            <Typography
-              variant="caption"
-              fontSize={isSmallScreen ? 14 : 20}
-              sx={{
-                color: "text.secondary",
-              }}
-            >
-              (Features coming soon...)
-            </Typography>
           </Box>
         </Box>
       ) : (

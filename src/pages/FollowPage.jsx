@@ -6,6 +6,7 @@ import { useLocation, useParams, Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetUserQuery } from "../api/user/userApi";
 import Navbar from "@components/Navbar";
+import { capitalize } from "@utils/string";
 
 const FollowPage = () => {
   const theme = useTheme();
@@ -13,8 +14,8 @@ const FollowPage = () => {
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
   const location = useLocation();
   const { id } = useParams();
-
   const { data: userData } = useGetUserQuery(id, { skip: !id });
+  const searchText = useSelector((state) => state.post.searchText);
 
   const isLoggedUserFollowerPage = location.pathname === "/user/followers";
   const isLoggedUserFollowingPage = location.pathname === "/user/following";
@@ -34,16 +35,33 @@ const FollowPage = () => {
     ? userData?.follower
     : isUsersFollowingPage && userData?.following;
 
-  const usersArray =
+  const usersList =
     isLoggedUserFollowerPage || isLoggedUserFollowingPage
       ? loggedUserFollowList
       : (isUsersFollowerPage || isUsersFollowingPage) && userFollowList;
 
+  const filteredList =
+    usersList?.length && searchText
+      ? usersList?.filter((user) =>
+          activeFollowing
+            ? user?.followingId?.firstname
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
+              user?.followingId?.username
+                .toLowerCase()
+                .includes(searchText.toLowerCase())
+            : user?.followerId?.firstname
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
+              user?.followerId?.username
+                .toLowerCase()
+                .includes(searchText.toLowerCase()),
+        )
+      : usersList;
+
+  const usersArray = filteredList ? filteredList : usersList;
   const followingLink = id ? `/user/${id}/following` : "/user/following";
   const followersLink = id ? `/user/${id}/followers` : "/user/followers";
-
-  const capitalize = (str) =>
-    str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 
   return (
     <>
@@ -99,7 +117,7 @@ const FollowPage = () => {
           zIndex: 1100,
           color: "#2979ff",
           backgroundColor: isSmallScreen ? "#f0f0f0" : "transparent",
-          width: "100%",
+          width: isSmallScreen ? "100%" : "auto",
         }}
         variant="text"
       >
@@ -145,10 +163,7 @@ const FollowPage = () => {
               >
                 <UserCard
                   item={item}
-                  isLoggedUserFollowerPage={isLoggedUserFollowerPage}
-                  isLoggedUserFollowingPage={isLoggedUserFollowingPage}
-                  isUsersFollowerPage={isUsersFollowerPage}
-                  isUsersFollowingPage={isUsersFollowingPage}
+                  pageType={activeFollowers ? "followers" : "following"}
                 />
               </Box>
             ))
@@ -163,7 +178,11 @@ const FollowPage = () => {
                 width: "100%",
               }}
             >
-              {activeFollowers ? "0 follower" : "0 following"}
+              {searchText
+                ? "No user found"
+                : activeFollowers
+                  ? "0 follower"
+                  : "0 following"}
             </Typography>
           )}
         </Box>

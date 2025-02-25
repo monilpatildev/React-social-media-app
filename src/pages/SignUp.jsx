@@ -12,7 +12,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 
 import logo from "../assets/logo.png";
@@ -216,7 +216,7 @@ export default function SignUp() {
           )}
         </Card>
       </Box>
-      <ToastContainer />
+
     </ThemeProvider>
   );
 }

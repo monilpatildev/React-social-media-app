@@ -1,11 +1,5 @@
 import Box from "@mui/material/Box";
-import {
-
-  Skeleton,
-  Typography,
-  Grid,
-  useMediaQuery,
-} from "@mui/material";
+import { Skeleton, Typography, Grid, useMediaQuery } from "@mui/material";
 import UserCard from "@components/UserCard";
 import Navbar from "@components/Navbar";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
@@ -25,7 +19,7 @@ export default function UserList() {
   const pageSize = 8;
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
 
-  const { list, data, isLoading } = useInfiniteScroll(
+  const { list, isLoading } = useInfiniteScroll(
     useGetAllUsersQuery,
     pageSize,
     prevUserList,
@@ -36,6 +30,9 @@ export default function UserList() {
       item?.username !== loggedUserData?.username ||
       item?.email !== loggedUserData?.email,
   );
+
+  console.log(usersArray);
+
   return (
     <>
       <Navbar />
@@ -78,7 +75,7 @@ export default function UserList() {
               <Grid container spacing={2}>
                 {usersArray.map((item, index) => (
                   <Grid item xs={12} key={index}>
-                    <UserCard item={item} data={data} />
+                    <UserCard item={item} pageType="allUsers" />
                   </Grid>
                 ))}
               </Grid>

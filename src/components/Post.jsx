@@ -11,17 +11,11 @@ import { useNavigate } from "react-router";
 import UserProfileLogo from "./UserProfileLogo";
 import { useGetImageQuery } from "../api/post/postApi";
 import { useGetUserQuery } from "../api/user/userApi";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import SendIcon from "@mui/icons-material/Send";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
-import { useState } from "react";
-import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
-
+import { useCallback, useState } from "react";
+import { format, parseISO } from "date-fns";
 const Post = ({ item }) => {
   const [showMore, setShowMore] = useState(false);
   const [showPostImage, setShowPostImage] = useState(false);
-  const [saveBtn ,setSaveBtn]= useState(false)
 
   const { data: postImage } = useGetImageQuery(item.media_id);
   const { data: user, isLoading: userLoading } = useGetUserQuery(item.userId);
@@ -30,27 +24,9 @@ const Post = ({ item }) => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const formatDate = (dateString) => {
-    const fullDate = dateString.created_at.slice(0, 10);
-    const splitDate = fullDate.split("-");
-    const monthArr = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const monthNumber = Number(splitDate[1]);
-    const finalMonth = monthArr[monthNumber - 1];
-    return splitDate[2] + " " + finalMonth + ", " + splitDate[0];
-  };
+  const formatDate = useCallback((dateString) => {
+    return format(parseISO(dateString.created_at), "dd MMM, yyyy");
+  }, []);
 
   const handleUserProfile = () => {
     navigate(`/user/${item.userId}`);
@@ -74,7 +50,7 @@ const Post = ({ item }) => {
         sx={{ backgroundColor: "white" }}
       >
         <Box onClick={handleUserProfile}>
-          <UserProfileLogo user={user}  />
+          <UserProfileLogo user={user} />
         </Box>
         <Stack
           direction="column"
@@ -114,25 +90,6 @@ const Post = ({ item }) => {
             {formatDate(item)}
           </Typography>
         </Stack>
-        {!saveBtn ? (
-          <BookmarkBorderIcon
-            onClick={() => setSaveBtn(!saveBtn)}
-            sx={{
-              color: "text.secondary",
-              fontSize: isSmallScreen ? "28px" : "34px",
-              cursor: "pointer",
-            }}
-          />
-        ) : (
-          <BookmarkRoundedIcon
-            onClick={() => setSaveBtn(!saveBtn)}
-            sx={{
-              color: "text.secondary",
-              fontSize: isSmallScreen ? "28px" : "34px",
-              cursor: "pointer",
-            }}
-          />
-        )}
       </Stack>
       <Typography
         variant="body2"
@@ -168,43 +125,6 @@ const Post = ({ item }) => {
             sx={{ my: 5 }}
           />
         )}
-      </Stack>
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={isSmallScreen ? 2 : 3}
-        justifyContent={"flex-start"}
-      >
-        <FavoriteBorderIcon
-          sx={{
-            color: "grey",
-            fontSize: isSmallScreen ? "28px" : "32px",
-            cursor: "pointer",
-          }}
-        />
-        <ChatBubbleOutlineIcon
-          sx={{
-            color: "grey",
-            fontSize: isSmallScreen ? "28px" : "32px",
-            cursor: "pointer",
-          }}
-        />
-        <SendIcon
-          sx={{
-            color: "grey",
-            fontSize: isSmallScreen ? "28px" : "32px",
-            cursor: "pointer",
-          }}
-        />{" "}
-        <Typography
-          variant="caption"
-          fontSize={isSmallScreen ? 14 : 20}
-          sx={{
-            color: "text.secondary",
-          }}
-        >
-          (Features coming soon...)
-        </Typography>
       </Stack>
       <Box component="span" sx={{ mt: "10px" }}>
         <Typography

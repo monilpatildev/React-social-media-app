@@ -17,9 +17,12 @@ export default function useInfiniteScroll(
   if (searchText) queryParams.searchText = searchText;
   const location = useLocation();
   const isNavbar = location.pathname === "/";
+  const isSearchUserPage = location.pathname.includes("/users");
+
 
   const { data, isFetching, isLoading } = queryFunction(queryParams, {
     skip: isNavbar && searchText,
+    refetchOnReconnect:true,
   });
 
   const totalPages = data?.total ? Math.ceil(data.total / pageSize) : 1;
@@ -32,7 +35,7 @@ export default function useInfiniteScroll(
   }, [searchText, dispatch, setList, isNavbar]);
 
   useEffect(() => {    
-    if (!searchText) {
+    if ((isSearchUserPage && searchText)|| !searchText) {
       const onScroll = () => {
         if (throttleTimeout.current) return;
         throttleTimeout.current = setTimeout(() => {
@@ -48,7 +51,7 @@ export default function useInfiniteScroll(
       window.addEventListener("scroll", onScroll);
       return () => window.removeEventListener("scroll", onScroll);
     }
-  }, [isFetching, pageNumber, totalPages, searchText]);
+  }, [isFetching, pageNumber, totalPages, searchText, isSearchUserPage]);
 
   useEffect(() => {
     if (!searchText) {

@@ -4,7 +4,7 @@ import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Button, Stack } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
@@ -17,7 +17,7 @@ const DeleteUserForm = ({ setDeleteUserForm }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+    setDeleteUserForm(false);
     toast.success("Account deleted successfully!", {
       autoClose: 500,
       onClose: () => {
@@ -98,7 +98,6 @@ const DeleteUserForm = ({ setDeleteUserForm }) => {
                 variant="contained"
                 color="default"
                 sx={{ boxShadow: "none" }}
-
                 onClick={handleFormSubmit}
               >
                 Delete
@@ -114,7 +113,6 @@ const DeleteUserForm = ({ setDeleteUserForm }) => {
           </CardContent>
         </Card>
       </Stack>
-      <ToastContainer />
     </>
   );
 };

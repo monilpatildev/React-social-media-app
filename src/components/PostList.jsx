@@ -8,6 +8,7 @@ import { useGetPostQuery, useGetSearchPostQuery } from "../api/post/postApi";
 import { useTheme } from "@mui/material/styles";
 import { useLocation } from "react-router";
 
+
 export default function PostList() {
   const searchText = useSelector((state) => state.post.searchText);
   const searchPostsLoading = useSelector(
@@ -49,7 +50,7 @@ export default function PostList() {
         <Grid container spacing={2}>
           {loading ? (
             <>
-              {Array.from("1234").map((_, index) => (
+              {Array.from({ length: 4 }).map((_, index) => (
                 <Grid item xs={12} sm={11} key={index} mt={5}>
                   <Skeleton
                     variant="rectangular"
@@ -67,7 +68,7 @@ export default function PostList() {
                     <Grid
                       item
                       xs={12}
-                      sm={11}
+                      sm={10}
                       key={item._id}
                       mt={isSmallScreen ? 1 : 4}
                     >

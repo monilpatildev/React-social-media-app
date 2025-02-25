@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import UserProfileLogo from "./UserProfileLogo";
 import { useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { useState } from "react";
 import { setLoggedUserData } from "../api/user/userSlice";
 import { setAuthToken, setUserLoggedIn } from "../api/auth/authSlice";
@@ -39,6 +39,7 @@ export default function UserProfileButton() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleLogout = () => {
+    setAnchorEl(null);
     toast.success("Log out successfully!", {
       autoClose: 500,
       onClose: () => {
@@ -81,7 +82,6 @@ export default function UserProfileButton() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        
       >
         <MenuItem
           onClick={handleProfilePage}
@@ -103,7 +103,7 @@ export default function UserProfileButton() {
           Logout
         </MenuItem>
       </Menu>
-      <ToastContainer />
+
     </>
   );
 }

@@ -4,13 +4,17 @@ import { useTheme } from "@mui/material/styles";
 import { useGetFollowRequestQuery } from "../api/follow/followApi";
 import UserCard from "@components/UserCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link } from "react-router-dom"; // Ensure you're using react-router-dom
+import { Link, useNavigate } from "react-router-dom"; // Ensure you're using react-router-dom
 import Navbar from "@components/Navbar";
 
 const FollowRequests = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const { data: requestArray, isLoading } = useGetFollowRequestQuery({refetchOnMountOrArgChange: true});
+  const { data: requestArray, isLoading } = useGetFollowRequestQuery({
+    refetchOnMountOrArgChange: true,
+  });
+
 
   return (
     <>
@@ -29,7 +33,7 @@ const FollowRequests = () => {
           variant="text"
         >
           <Link
-            to={-1}
+            onClick={() => navigate(-1)}
             style={{
               textDecoration: "none",
               display: "flex",
@@ -53,7 +57,7 @@ const FollowRequests = () => {
             <Grid container spacing={2}>
               {requestArray.map((item, index) => (
                 <Grid item xs={12} key={index}>
-                  <UserCard item={item} />
+                  <UserCard item={item} pageType="followRequest" />
                 </Grid>
               ))}
             </Grid>
