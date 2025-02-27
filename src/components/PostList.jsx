@@ -17,10 +17,10 @@ export default function PostList() {
   const prevPostList = useSelector((state) => state.post.postLists);
   const dispatch = useDispatch();
   const location = useLocation();
-  const isNavbar = location.pathname === "/";
+  const isHome = location.pathname === "/";
 
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
-    isNavbar ? searchText : "",
+    isHome ? searchText : "",
     { skip: !searchText, refetchOnMountOrArgChange: true },
   );
 

@@ -5,7 +5,6 @@ import { useGetFollowRequestQuery } from "../api/follow/followApi";
 import UserCard from "@components/UserCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Link, useNavigate } from "react-router-dom"; // Ensure you're using react-router-dom
-import Navbar from "@components/Navbar";
 
 const FollowRequests = () => {
   const theme = useTheme();
@@ -18,7 +17,7 @@ const FollowRequests = () => {
 
   return (
     <>
-      <Navbar />
+
       {!isSmallScreen && (
         <Typography
           sx={{

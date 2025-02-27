@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useParams, useLocation, useNavigate, Link } from "react-router";
+import { useParams, useLocation, useNavigate, Link, Outlet } from "react-router";
 import {
   Box,
   Button,
@@ -16,7 +16,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import EditProfile from "@components/EditProfile";
 import DeleteUserForm from "@components/DeleteUserForm";
-import Navbar from "@components/Navbar";
 import { useSelector, useDispatch } from "react-redux";
 import { useGetLoggedUserQuery, useGetUserQuery } from "../api/user/userApi";
 import { setLoggedUserData } from "../api/user/userSlice";
@@ -46,7 +45,7 @@ const UserProfile = () => {
       location.pathname !== "/profile" &&
       (!id || location.pathname === "/user" || id.length !== 24)
     ) {
-      navigate("/");
+      navigate(-1);
     }
     dispatch(setLoggedUserData(loggedUser?.data ? loggedUser?.data : null));
   }, [dispatch, id, location.pathname, loggedUser, navigate]);
@@ -75,7 +74,6 @@ const UserProfile = () => {
 
   return (
     <>
-      <Navbar />
       {!isSmallScreen && (
         <Typography
           sx={{
@@ -264,6 +262,7 @@ const UserProfile = () => {
           <DeleteUserForm setDeleteUserForm={setDeleteUserForm} />,
           document.body,
         )}
+      <Outlet />
     </>
   );
 };

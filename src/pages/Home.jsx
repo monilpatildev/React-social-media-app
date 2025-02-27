@@ -1,5 +1,4 @@
 import CreatePost from "@components/CreatePost";
-import Navbar from "@components/Navbar";
 import PostList from "@components/PostList";
 import Sidebar from "@components/Sidebar";
 import { useEffect, useState } from "react";
@@ -14,9 +13,8 @@ const Home = () => {
 
   return (
     <>
-      <Navbar />
-
       <PostList />
+
       <Sidebar
         setShowCreatePost={setShowCreatePost}
         showCreatePost={showCreatePost}

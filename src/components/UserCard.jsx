@@ -66,8 +66,6 @@ const UserCard = ({ item, pageType }) => {
 
   const handleFollowUser = async () => {
     if (pageType === "followRequest") {
-      console.log(item);
-
       acceptFollowRequest({ id: item?.followerId });
     } else {
       if (followEntry) {
@@ -85,7 +83,7 @@ const UserCard = ({ item, pageType }) => {
     }
   };
 
-  console.log(item);
+  // console.log(item);
 
   return (
     <Stack

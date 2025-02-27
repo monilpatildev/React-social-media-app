@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useState, useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -33,8 +33,6 @@ import { capitalize } from "@utils/string";
 const Navbar = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const { id } = useParams();
-
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
 
   const dispatch = useDispatch();
@@ -46,12 +44,12 @@ const Navbar = () => {
   const isHome = location.pathname === "/";
   const isSearchUser = location.pathname === "/users";
 
-  const isLoggedUserFollowerPage = location.pathname === "/user/followers";
-  const isLoggedUserFollowingPage = location.pathname === "/user/following";
-  const isUsersFollowerPage =
-    id && location.pathname === `/user/${id}/followers`;
-  const isUsersFollowingPage =
-    id && location.pathname === `/user/${id}/following`;
+const followType = location.pathname.endsWith("followers")
+  ? "followers"
+  : location.pathname.endsWith("following")
+    ? "following"
+    : null;
+
 
   useEffect(() => {
     document.body.style.overflow = showCreatePost ? "hidden" : "auto";
@@ -171,12 +169,7 @@ const Navbar = () => {
             />
           </Box>
 
-          {(isHome ||
-            isSearchUser ||
-            isLoggedUserFollowerPage ||
-            isLoggedUserFollowingPage ||
-            isUsersFollowerPage ||
-            isUsersFollowingPage) && (
+          {(isHome || isSearchUser || followType) && (
             <Box
               sx={{
                 display: "flex",
@@ -190,11 +183,7 @@ const Navbar = () => {
                 value={localSearch}
                 onChange={handleSearchText}
                 placeholder={
-                  isSearchUser ||
-                  isLoggedUserFollowerPage ||
-                  isLoggedUserFollowingPage ||
-                  isUsersFollowerPage ||
-                  isUsersFollowingPage
+                  isSearchUser || followType
                     ? "Search user..."
                     : "Search post title..."
                 }

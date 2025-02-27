@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { useLocation, useParams, Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGetUserQuery } from "../api/user/userApi";
-import Navbar from "@components/Navbar";
+
 import { capitalize } from "@utils/string";
 
 const FollowPage = () => {
@@ -17,55 +17,33 @@ const FollowPage = () => {
   const { data: userData } = useGetUserQuery(id, { skip: !id });
   const searchText = useSelector((state) => state.post.searchText);
 
-  const isLoggedUserFollowerPage = location.pathname === "/user/followers";
-  const isLoggedUserFollowingPage = location.pathname === "/user/following";
-  const isUsersFollowerPage =
-    id && location.pathname === `/user/${id}/followers`;
-  const isUsersFollowingPage =
-    id && location.pathname === `/user/${id}/following`;
+  const pageType = location.pathname.includes("following")
+    ? "following"
+    : "follower";
+  const activeFollowing = pageType === "following";
+  const activeFollowers = pageType === "follower";
 
-  const activeFollowing = isLoggedUserFollowingPage || isUsersFollowingPage;
-  const activeFollowers = isLoggedUserFollowerPage || isUsersFollowerPage;
-
-  const loggedUserFollowList = isLoggedUserFollowerPage
-    ? loggedUserData?.follower
-    : isLoggedUserFollowingPage && loggedUserData?.following;
-
-  const userFollowList = isUsersFollowerPage
-    ? userData?.follower
-    : isUsersFollowingPage && userData?.following;
-
-  const usersList =
-    isLoggedUserFollowerPage || isLoggedUserFollowingPage
-      ? loggedUserFollowList
-      : (isUsersFollowerPage || isUsersFollowingPage) && userFollowList;
+  const isOwn = !id;
+  const usersList = isOwn ? loggedUserData?.[pageType] : userData?.[pageType];
 
   const filteredList =
-    usersList?.length && searchText
-      ? usersList?.filter((user) =>
-          activeFollowing
-            ? user?.followingId?.firstname
-                .toLowerCase()
-                .includes(searchText.toLowerCase()) ||
-              user?.followingId?.username
-                .toLowerCase()
-                .includes(searchText.toLowerCase())
-            : user?.followerId?.firstname
-                .toLowerCase()
-                .includes(searchText.toLowerCase()) ||
-              user?.followerId?.username
-                .toLowerCase()
-                .includes(searchText.toLowerCase()),
-        )
+    usersList && searchText
+      ? usersList.filter((user) => {
+          const targetUser = activeFollowing
+            ? user.followingId
+            : user.followerId;
+          return [targetUser?.firstname, targetUser?.username].some((name) =>
+            name?.toLowerCase().includes(searchText.toLowerCase()),
+          );
+        })
       : usersList;
 
-  const usersArray = filteredList ? filteredList : usersList;
-  const followingLink = id ? `/user/${id}/following` : "/user/following";
-  const followersLink = id ? `/user/${id}/followers` : "/user/followers";
+  const followingLink = isOwn ? "/user/following" : `/user/${id}/following`;
+  const followersLink = isOwn ? "/user/followers" : `/user/${id}/followers`;
 
   return (
     <>
-      <Navbar />
+
       <Box
         sx={{
           position: "fixed",
@@ -122,11 +100,7 @@ const FollowPage = () => {
         variant="text"
       >
         <Link
-          to={
-            !isLoggedUserFollowingPage && !isLoggedUserFollowerPage
-              ? `/user/${id}`
-              : "/profile"
-          }
+          to={isOwn ? "/profile" : `/user/${id}`}
           style={{
             textDecoration: "none",
             display: "flex",
@@ -152,8 +126,8 @@ const FollowPage = () => {
         }}
       >
         <Box>
-          {usersArray?.length ? (
-            usersArray.map((item, index) => (
+          {filteredList && filteredList.length ? (
+            filteredList.map((item, index) => (
               <Box
                 key={index}
                 sx={{

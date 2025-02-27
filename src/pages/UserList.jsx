@@ -1,7 +1,6 @@
 import Box from "@mui/material/Box";
 import { Skeleton, Typography, Grid, useMediaQuery } from "@mui/material";
 import UserCard from "@components/UserCard";
-import Navbar from "@components/Navbar";
 import useInfiniteScroll from "@utils/useInfiniteScroll";
 import { useSelector } from "react-redux";
 import { useGetAllUsersQuery } from "../api/user/userApi";
@@ -31,11 +30,10 @@ export default function UserList() {
       item?.email !== loggedUserData?.email,
   );
 
-  console.log(usersArray);
+  // console.log(usersArray);
 
   return (
     <>
-      <Navbar />
       {!isSmallScreen && (
         <Typography
           sx={{
