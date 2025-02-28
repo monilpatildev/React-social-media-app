@@ -121,8 +121,8 @@ const Post = ({ item }) => {
         ) : (
           <Skeleton
             variant="rectangular"
-            height={isSmallScreen ? 250 : 450}
-            sx={{ my: 5 }}
+            height={isSmallScreen ? 250 : 600}
+            sx={{ borderRadius: "24px" }}
           />
         )}
       </Stack>

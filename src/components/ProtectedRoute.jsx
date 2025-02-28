@@ -4,7 +4,16 @@ import Navbar from "./Navbar";
 
 const ProtectedRoute = () => {
   const userLoggedIn = useSelector((state) => state.auth.userLoggedIn);
-  return userLoggedIn ? <> <Navbar /><Outlet /></> : <Navigate to="/signin" replace />;
+
+  const loggedUserData = useSelector((state) => state.user.loggedUserData);
+  return userLoggedIn ? (
+    <>
+      <Navbar />
+      {loggedUserData ? <Outlet /> : ""}
+    </>
+  ) : (
+    <Navigate to="/signin" replace />
+  );
 };
 
 export default ProtectedRoute;

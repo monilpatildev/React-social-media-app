@@ -13,6 +13,7 @@ const AuthProvider = ({ children }) => {
     }
   }, [cookie]);
 
+
   return (
     <AuthContext.Provider value={{ cookie, setCookie }}>
       {children}

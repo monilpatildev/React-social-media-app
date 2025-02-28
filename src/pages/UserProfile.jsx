@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useParams, useLocation, useNavigate, Link, Outlet } from "react-router";
+import {
+  useParams,
+  useLocation,
+  useNavigate,
+  Link,
+  Outlet,
+} from "react-router";
 import {
   Box,
   Button,
@@ -23,7 +29,6 @@ import profileBg from "../assets/logo.png";
 import BorderColorRoundedIcon from "@mui/icons-material/BorderColorRounded";
 import PersonRemoveRoundedIcon from "@mui/icons-material/PersonRemoveRounded";
 import { capitalize } from "@utils/string";
-
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -71,6 +76,7 @@ const UserProfile = () => {
       </Box>
     );
   }
+
 
   return (
     <>

@@ -83,7 +83,6 @@ const UserCard = ({ item, pageType }) => {
     }
   };
 
-  // console.log(item);
 
   return (
     <Stack

@@ -7,10 +7,14 @@ import { setPostLists, setSearchTextLoading } from "../api/post/postSlice";
 import { useGetPostQuery, useGetSearchPostQuery } from "../api/post/postApi";
 import { useTheme } from "@mui/material/styles";
 import { useLocation } from "react-router";
-
+import { useSearchFromURL } from "@utils/useSearchFromURL";
 
 export default function PostList() {
-  const searchText = useSelector((state) => state.post.searchText);
+  const searchBarText = useSelector((state) => state.post.searchText);
+  const urlText = useSearchFromURL();
+
+  const searchText = urlText || searchBarText;
+
   const searchPostsLoading = useSelector(
     (state) => state.post.searchPostsLoading,
   );
@@ -18,22 +22,16 @@ export default function PostList() {
   const dispatch = useDispatch();
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isBiggerScreen = useMediaQuery(theme.breakpoints.down("xl"));
+
+  const pageSize = isBiggerScreen ? 2 : 4;
 
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
     isHome ? searchText : "",
     { skip: !searchText, refetchOnMountOrArgChange: true },
   );
-
-  useEffect(() => {
-    dispatch(setSearchTextLoading(searchLoading));
-  }, [dispatch, searchLoading]);
-
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const isBiggerScreen= useMediaQuery(theme.breakpoints.down("xl"));
-
-  const pageSize = isBiggerScreen ? 2 : 4;
-
   const { list: dataList, isLoading: infiniteLoading } = useInfiniteScroll(
     useGetPostQuery,
     pageSize,
@@ -41,8 +39,12 @@ export default function PostList() {
     setPostLists,
   );
 
-  const posts = searchText ? searchPosts && searchPosts.data : dataList;
-  const loading = searchPostsLoading || searchLoading || infiniteLoading;
+  useEffect(() => {
+    dispatch(setSearchTextLoading(searchLoading));
+  }, [dispatch, searchLoading]);
+
+  const posts = searchText ? searchPosts?.data : dataList;
+  const loading = searchPostsLoading || infiniteLoading || searchLoading;
 
   return (
     <>
@@ -51,7 +53,7 @@ export default function PostList() {
           {loading ? (
             <>
               {Array.from({ length: 4 }).map((_, index) => (
-                <Grid item xs={12} sm={11} key={index} mt={5}>
+                <Grid item xs={12} sm={10} key={index} mt={5}>
                   <Skeleton
                     variant="rectangular"
                     height={500}
@@ -62,7 +64,7 @@ export default function PostList() {
             </>
           ) : (
             <>
-              {posts && posts.length > 0 ? (
+              {posts && posts.length ? (
                 <>
                   {posts.map((item) => (
                     <Grid

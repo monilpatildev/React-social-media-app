@@ -30,8 +30,6 @@ export default function UserList() {
       item?.email !== loggedUserData?.email,
   );
 
-  // console.log(usersArray);
-
   return (
     <>
       {!isSmallScreen && (

@@ -7,9 +7,14 @@ const userRoutes = [
     children: [
       { path: "followers", element: <FollowPage /> },
       { path: "following", element: <FollowPage /> },
-      { path: ":id", element: <UserProfile /> },
-      { path: ":id/followers", element: <FollowPage /> },
-      { path: ":id/following", element: <FollowPage /> },
+      {
+        path: ":id",
+        children: [
+          { index: true, element: <UserProfile /> },
+          { path: "followers", element: <FollowPage /> },
+          { path: "following", element: <FollowPage /> },
+        ],
+      },
     ],
   },
 ];
