@@ -14,10 +14,8 @@ const FollowRequests = () => {
     refetchOnMountOrArgChange: true,
   });
 
-
   return (
     <>
-
       {!isSmallScreen && (
         <Typography
           sx={{
@@ -71,7 +69,7 @@ const FollowRequests = () => {
                 width: "100%",
               }}
             >
-              No Requests!!
+              No Requests!
             </Typography>
           )
         ) : (

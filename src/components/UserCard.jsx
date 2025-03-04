@@ -17,17 +17,16 @@ const UserCard = ({ item, pageType }) => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
-  const [followUser] = useFollowUserMutation();
-  const [unfollowUser] = useUnfollowUserMutation();
+  const [followUser, { isLoading: followLoading }] = useFollowUserMutation();
+  const [unfollowUser,{isLoading: unFollowLoading}] = useUnfollowUserMutation();
   const [acceptFollowRequest] = useAcceptFollowRequestMutation();
 
   const isAllUsersPage = location.pathname === "/users";
   const isFollowRequestPage = location.pathname === "/follow-request";
 
-  
   const extractedUser = useMemo(() => {
     if (item?.firstname) return item;
-    if (pageType === "followers" || pageType === "followRequest") {
+    if (pageType === "followers" ) {
       return typeof item.followerId === "object" ? item.followerId : null;
     }
     if (pageType === "following") {
@@ -35,7 +34,6 @@ const UserCard = ({ item, pageType }) => {
     }
     return null;
   }, [item, pageType]);
-
 
   const userId = useMemo(() => {
     if (extractedUser) return extractedUser._id;
@@ -52,23 +50,20 @@ const UserCard = ({ item, pageType }) => {
     return item._id;
   }, [extractedUser, item, pageType]);
 
-
   const { data: fetchedUser } = useGetUserQuery(userId, { skip: !userId });
   const user = extractedUser || fetchedUser;
 
-
-  const followEntry = useMemo(() => {
+  const isUserFollowing = useMemo(() => {
     return loggedUserData?.following?.find(
       (f) => f.followingId?._id === user?._id,
     );
   }, [loggedUserData, user]);
 
-
   const handleFollowUser = async () => {
     if (pageType === "followRequest") {
       acceptFollowRequest({ id: item?.followerId });
     } else {
-      if (followEntry) {
+      if (isUserFollowing) {
         await unfollowUser({ id: user?._id });
       } else {
         await followUser({ id: user?._id });
@@ -76,13 +71,25 @@ const UserCard = ({ item, pageType }) => {
     }
   };
 
-
   const handleUserProfile = () => {
     if (user?._id) {
       navigate(`/user/${user._id}`);
     }
   };
 
+  const getButtonColor = () => {
+    if (pageType === "followRequest") return "primary";
+    return isUserFollowing ? "default" : "primary";
+  };
+
+  const getButtonLabel = () => {
+    if (isFollowRequestPage) return "Accept";
+    if (item?.isPrivate) {
+      if (!item?.isFollowing && !item?.isAccepted) return "Follow";
+      if (item?.isFollowing && !item?.isAccepted) return "Requested";
+    }
+    return isUserFollowing ? "Unfollow" : "Follow";
+  };
 
   return (
     <Stack
@@ -165,20 +172,12 @@ const UserCard = ({ item, pageType }) => {
           {isAllUsersPage || isFollowRequestPage ? (
             <Button
               variant="contained"
-              color={
-                pageType === "followRequest"
-                  ? "primary"
-                  : followEntry
-                    ? "default"
-                    : "primary"
-              }
-              disabled={
+              color={getButtonColor()}
+              disabled={unFollowLoading || followLoading ||
                 isAllUsersPage &&
                 user?.isPrivate &&
                 user?.isFollowing &&
                 !user?.isAccepted
-                  ? true
-                  : false
               }
               onClick={handleFollowUser}
               sx={{
@@ -188,19 +187,7 @@ const UserCard = ({ item, pageType }) => {
                 px: isSmallScreen ? 0.9 : undefined,
               }}
             >
-              {isFollowRequestPage
-                ? "Accept"
-                : item?.isPrivate
-                  ? !item?.isFollowing && !item?.isAccepted
-                    ? "Follow"
-                    : item?.isFollowing && !item?.isAccepted
-                      ? "Requested"
-                      : followEntry
-                        ? "Unfollow"
-                        : "Follow"
-                  : followEntry
-                    ? "Unfollow"
-                    : "Follow"}
+              {getButtonLabel()}
             </Button>
           ) : (
             ""

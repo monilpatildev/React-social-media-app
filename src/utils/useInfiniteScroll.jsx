@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -15,7 +16,7 @@ export default function useInfiniteScroll(
 
   const searchText = useSelector((state) => state.post.searchText);
 
-  const isNavbar = pathname === "/";
+  const isHome = pathname === "/";
   const isSearchUserPage = pathname.includes("/users");
 
   const queryParams = useMemo(() => {
@@ -25,19 +26,13 @@ export default function useInfiniteScroll(
   }, [pageSize, pageNumber, searchText]);
 
   const { data, isFetching, isLoading } = queryFunction(queryParams, {
-    skip: isNavbar && searchText,
+    skip: isHome && searchText,
     refetchOnReconnect: true,
   });
 
   const totalPages = useMemo(() => {
     return data?.total ? Math.ceil(data.total / pageSize) : 1;
   }, [data, pageSize]);
-
-  useEffect(() => {
-    if (!isNavbar || searchText) {
-      dispatch(setList([]));
-    }
-  }, [dispatch, isNavbar, searchText, setList]);
 
   const onScroll = useCallback(() => {
     if (throttleTimeout.current) return;
@@ -53,8 +48,15 @@ export default function useInfiniteScroll(
   }, [isFetching, pageNumber, totalPages]);
 
   useEffect(() => {
+    if (!isHome && (isSearchUserPage || searchText)) {
+      dispatch(setList([]));
+    }
+  }, [isHome, searchText]);
+
+  useEffect(() => {
     if ((isSearchUserPage && searchText) || !searchText) {
       window.addEventListener("scroll", onScroll);
+      window.addEventListener("resize", onScroll);
       return () => window.removeEventListener("scroll", onScroll);
     }
   }, [searchText, isSearchUserPage, onScroll]);
@@ -64,21 +66,11 @@ export default function useInfiniteScroll(
       const newItems = data.data.filter(
         (item) => !list.some((existing) => existing._id === item._id),
       );
-      if (newItems.length > 0) {
+      if (newItems.length) {
         dispatch(setList([...list, ...newItems]));
-      } else {
-        const updatedList = list.map((existing) => {
-          const newItem = data.data.find((item) => item._id === existing._id);
-          return newItem && existing.isFollowing !== newItem.isFollowing
-            ? newItem
-            : existing;
-        });
-        if (JSON.stringify(updatedList) !== JSON.stringify(list)) {
-          dispatch(setList(updatedList));
-        }
       }
     }
-  }, [data, list, dispatch, setList]);
+  }, [data, list]);
 
   return { isLoading, data, list };
 }

@@ -26,7 +26,7 @@ export default function PostList() {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const isBiggerScreen = useMediaQuery(theme.breakpoints.down("xl"));
 
-  const pageSize = isBiggerScreen ? 2 : 4;
+  const pageSize = isBiggerScreen ? 2 : 5;
 
   const { data: searchPosts, isLoading: searchLoading } = useGetSearchPostQuery(
     isHome ? searchText : "",

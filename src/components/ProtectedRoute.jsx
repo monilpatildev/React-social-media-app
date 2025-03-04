@@ -4,8 +4,8 @@ import Navbar from "./Navbar";
 
 const ProtectedRoute = () => {
   const userLoggedIn = useSelector((state) => state.auth.userLoggedIn);
-
   const loggedUserData = useSelector((state) => state.user.loggedUserData);
+  
   return userLoggedIn ? (
     <>
       <Navbar />

@@ -23,8 +23,7 @@ const FollowPage = () => {
   const activeFollowing = pageType === "following";
   const activeFollowers = pageType === "follower";
 
-  const isOwn = !id;
-  const usersList = isOwn ? loggedUserData?.[pageType] : userData?.[pageType];
+  const usersList = !id ? loggedUserData?.[pageType] : userData?.[pageType];
 
   const filteredList =
     usersList && searchText
@@ -38,12 +37,11 @@ const FollowPage = () => {
         })
       : usersList;
 
-  const followingLink = isOwn ? "/user/following" : `/user/${id}/following`;
-  const followersLink = isOwn ? "/user/followers" : `/user/${id}/followers`;
+  const followingLink = !id ? "/user/following" : `/user/${id}/following`;
+  const followersLink = !id ? "/user/followers" : `/user/${id}/followers`;
 
   return (
     <>
-
       <Box
         sx={{
           position: "fixed",
@@ -100,7 +98,7 @@ const FollowPage = () => {
         variant="text"
       >
         <Link
-          to={isOwn ? "/profile" : `/user/${id}`}
+          to={!id ? "/profile" : `/user/${id}`}
           style={{
             textDecoration: "none",
             display: "flex",

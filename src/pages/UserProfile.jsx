@@ -77,7 +77,6 @@ const UserProfile = () => {
     );
   }
 
-
   return (
     <>
       {!isSmallScreen && (
